@@ -135,36 +135,52 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         {/* Validation Result Box */}
         {validation && (
           <div
-            className={`p-3 rounded-xl border flex flex-col gap-2 max-h-36 overflow-y-auto text-xs ${
+            className={`p-3.5 rounded-xl border flex flex-col gap-2.5 max-h-44 overflow-y-auto text-xs ${
               validation.isValid
                 ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
-                : 'bg-rose-950/40 border-rose-500/30 text-rose-300'
+                : 'bg-rose-950/50 border-rose-500/50 text-rose-200'
             }`}
           >
-            <div className="flex items-center gap-2 font-bold">
-              {validation.isValid ? (
-                <>
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  <span>{t.validationPassed}</span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-4 h-4 text-rose-400" />
-                  <span>{t.validationFailed}</span>
-                </>
-              )}
-            </div>
+            {validation.isValid ? (
+              <div className="flex items-center gap-2 font-bold text-emerald-400">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <span>{t.validationPassed}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between border-b border-rose-800/50 pb-1.5">
+                  <div className="flex items-center gap-2 font-black text-rose-400 uppercase tracking-wide">
+                    <AlertCircle className="w-4 h-4 text-rose-400 animate-pulse" />
+                    <span>{t.datasetInvalidTitle}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setJsonText('');
+                      setFileName(null);
+                      setValidation(null);
+                    }}
+                    className="px-2 py-0.5 rounded bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-[10px] font-bold transition-colors uppercase border border-rose-700/60"
+                  >
+                    {t.tryAnotherFile}
+                  </button>
+                </div>
+                <p className="text-[11px] text-rose-300 font-sans">
+                  {t.couldNotLoadBuilding}
+                </p>
+              </div>
+            )}
 
-            {/* Error list */}
-            {validation.errors.map((err, i) => (
-              <div key={i} className="pl-6 text-[11px] text-rose-300 font-mono">
-                • {language === 'bn' ? err.messageBn : err.messageEn}
+            {/* Error list with Problem: prefix */}
+            {!validation.isValid && validation.errors.map((err, i) => (
+              <div key={i} className="pl-2 text-[11px] text-rose-200 font-mono bg-rose-950/60 p-2 rounded-lg border border-rose-900/50">
+                <span className="font-bold text-rose-400">{t.problemPrefix}: </span>
+                <span>{language === 'bn' ? err.messageBn : err.messageEn}</span>
               </div>
             ))}
 
             {/* Warning list */}
             {validation.warnings.map((warn, i) => (
-              <div key={i} className="pl-6 text-[11px] text-amber-300 font-mono">
+              <div key={i} className="pl-2 text-[11px] text-amber-300 font-mono">
                 ⚠ {language === 'bn' ? warn.messageBn : warn.messageEn}
               </div>
             ))}

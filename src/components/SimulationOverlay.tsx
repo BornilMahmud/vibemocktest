@@ -263,8 +263,8 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
               </h2>
               <p className="text-xs text-rose-200/90 mt-1">
                 {language === 'bn'
-                  ? 'সমস্ত নির্গমন পথ আগুন বা ধ্বংসস্তূপে বন্ধ। কোনো নিরাপদ পথ অবশিষ্ট নেই।'
-                  : 'All accessible evacuation paths are severed or sealed. Safe egress is impossible.'}
+                  ? 'বর্তমান প্রতিবন্ধকতার কারণে কোনো নিরাপদ রুট নির্ণয় করা সম্ভব নয়।'
+                  : 'The current hazard configuration does not permit a valid route.'}
               </p>
             </div>
 

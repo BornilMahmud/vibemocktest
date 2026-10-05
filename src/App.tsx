@@ -7,6 +7,7 @@ import { SimulationOverlay } from './components/SimulationOverlay';
 import { RouteIntel } from './components/RouteIntel';
 import { Legend } from './components/Legend';
 import { ImportModal } from './components/ImportModal';
+import { InitialLoader } from './components/InitialLoader';
 import type { FloorplanData, HazardState, GraphNode } from './types/graph';
 import type { SimulationPhase, CameraViewMode } from './types/simulation';
 import { CONTEST_BENCHMARK_PRESET } from './lib/presets';
@@ -36,6 +37,7 @@ export function App() {
   });
 
   const [isImportModalOpen, setIsImportModalOpen] = React.useState(false);
+  const [isInitialLoading, setIsInitialLoading] = React.useState(true);
 
   // -------------------------------------------------------------
   // CINEMATIC SIMULATION STATE MACHINE
@@ -509,6 +511,8 @@ export function App() {
             simulationSpeed={simulationSpeed}
             onChangeSpeed={setSimulationSpeed}
             language={language}
+            simulationPhase={simulationPhase}
+            activeHazardsCount={hazards.blockedNodes.size + hazards.blockedEdges.size + hazards.closedExits.size}
           />
         )}
       </main>
@@ -523,6 +527,14 @@ export function App() {
         onLoadFloorplan={handleLoadImportedFloorplan}
         language={language}
       />
+
+      {/* 5. INITIAL CINEMATIC BOOTLOADER */}
+      {isInitialLoading && (
+        <InitialLoader
+          onComplete={() => setIsInitialLoading(false)}
+          language={language}
+        />
+      )}
     </div>
   );
 }

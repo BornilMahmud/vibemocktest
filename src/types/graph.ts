@@ -54,6 +54,16 @@ export interface RouteStep {
   edgeId: string;
 }
 
+export interface ExitCandidateEvaluation {
+  exitId: string;
+  exitName: { en: string; bn: string };
+  cost: number | null; // null if unreachable
+  status: 'OPTIMAL' | 'REACHABLE_HIGHER_COST' | 'SEALED' | 'UNREACHABLE';
+  path?: string[];
+  reasonEn: string;
+  reasonBn: string;
+}
+
 export interface RouteResult {
   status: RouteStatus;
   path: string[];             // Sequence of node IDs: ['R1', 'C1', 'C2', 'E1']
@@ -64,6 +74,11 @@ export interface RouteResult {
   visitedNodesCount: number;
   unreachableExits: string[];
   computationTimeMs: number;
+  exitEvaluations: ExitCandidateEvaluation[];
+  explanation: {
+    en: string;
+    bn: string;
+  };
 }
 
 export interface ValidationError {

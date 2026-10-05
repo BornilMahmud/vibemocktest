@@ -115,6 +115,55 @@ export interface Translations {
   startBlockedDesc: string;
   checkHazardsHint: string;
   noNodesInGraph: string;
+
+  // Operational System States
+  sysStateArmed: string;
+  sysStateRouteFound: string;
+  sysStateMonitoring: string;
+  sysStateHazardDetected: string;
+  sysStateRerouting: string;
+  sysStateExitReached: string;
+  sysStateFailed: string;
+
+  // Explainability ("Why this route?")
+  whyThisRoute: string;
+  whyThisRouteDesc: string;
+  selectedExitReason: string;
+  alternativeExitsChecked: string;
+  costBreakdown: string;
+  hazardsAffectingRoute: string;
+  exitOptimalLabel: string;
+  exitSealedLabel: string;
+  exitUnreachableLabel: string;
+
+  // Data Inspector
+  buildingDataTitle: string;
+  buildingNameLabel: string;
+  nodesLabel: string;
+  corridorsLabel: string;
+  roomsLabel: string;
+  junctionsLabel: string;
+  exitsLabel: string;
+  activeHazardsLabel: string;
+  graphHealthLabel: string;
+  graphHealthValid: string;
+  initialStateLabel: string;
+  corridorsCount: string;
+
+  // Initial Loader
+  initializingBuilding: string;
+  graphLoadedStep: string;
+  corridorsMappedStep: string;
+  exitsIdentifiedStep: string;
+  routingReadyStep: string;
+  systemReadyStep: string;
+  skipIntro: string;
+
+  // Dataset Invalid Rejection
+  datasetInvalidTitle: string;
+  couldNotLoadBuilding: string;
+  problemPrefix: string;
+  tryAnotherFile: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -223,6 +272,55 @@ export const translations: Record<Language, Translations> = {
     startBlockedDesc: 'The designated starting room or junction is currently compromised by fire or debris.',
     checkHazardsHint: 'Remove blockades or select an alternative starting room to compute an escape vector.',
     noNodesInGraph: 'No nodes present in current floorplan.',
+
+    // Operational System States
+    sysStateArmed: 'SYSTEM ARMED & READY',
+    sysStateRouteFound: 'ROUTE CALCULATED',
+    sysStateMonitoring: 'MONITORING HAZARDS',
+    sysStateHazardDetected: 'HAZARD DETECTED',
+    sysStateRerouting: 'REROUTING VECTOR',
+    sysStateExitReached: 'SAFE EXIT REACHED',
+    sysStateFailed: 'NO SAFE ROUTE',
+
+    // Explainability ("Why this route?")
+    whyThisRoute: 'WHY THIS ROUTE?',
+    whyThisRouteDesc: 'Deterministic Dijkstra route selection telemetry and decision matrix.',
+    selectedExitReason: 'Decision Basis',
+    alternativeExitsChecked: 'Alternative Exits Evaluated',
+    costBreakdown: 'Corridor Transit Breakdown',
+    hazardsAffectingRoute: 'Hazards on Graph',
+    exitOptimalLabel: 'OPTIMAL EGRESS',
+    exitSealedLabel: 'SEALED / CLOSED',
+    exitUnreachableLabel: 'UNREACHABLE',
+
+    // Data Inspector
+    buildingDataTitle: 'BUILDING DATA INSPECTOR',
+    buildingNameLabel: 'Building Name',
+    nodesLabel: 'Total Nodes',
+    corridorsLabel: 'Corridors (Edges)',
+    roomsLabel: 'Rooms',
+    junctionsLabel: 'Junctions',
+    exitsLabel: 'Exits',
+    activeHazardsLabel: 'Active Hazards',
+    graphHealthLabel: 'GRAPH HEALTH',
+    graphHealthValid: 'VALID & DETERMINISTIC',
+    initialStateLabel: 'INITIAL STATE',
+    corridorsCount: 'corridors',
+
+    // Initial Loader
+    initializingBuilding: 'INITIALIZING BUILDING TOPOLOGY...',
+    graphLoadedStep: 'Graph schema validated & loaded',
+    corridorsMappedStep: 'Corridors & weights bidirectionalized',
+    exitsIdentifiedStep: 'Exit portals mapped & verified',
+    routingReadyStep: 'Dijkstra shortest path engine primed',
+    systemReadyStep: 'SYSTEM READY',
+    skipIntro: 'Skip Intro',
+
+    // Dataset Invalid Rejection
+    datasetInvalidTitle: 'DATASET INVALID',
+    couldNotLoadBuilding: 'The application could not load this building.',
+    problemPrefix: 'Problem',
+    tryAnotherFile: 'TRY ANOTHER FILE',
   },
   bn: {
     appName: 'স্মার্ট এস্কেপ',
@@ -329,5 +427,54 @@ export const translations: Record<Language, Translations> = {
     startBlockedDesc: 'নির্বাচিত প্রারম্ভিক কক্ষ বা সংযোগস্থলটি বর্তমানে আগুন বা ধ্বংসস্তূপে অবরুদ্ধ।',
     checkHazardsHint: 'প্রতিবন্ধকতা অপসারণ করুন বা বিকল্প শুরুর কক্ষ নির্বাচন করুন।',
     noNodesInGraph: 'বর্তমান ফ্লোরপ্ল্যানে কোনো নোড পাওয়া যায়নি।',
+
+    // Operational System States
+    sysStateArmed: 'সিস্টেম প্রস্তুত ও সক্রিয়',
+    sysStateRouteFound: 'নিরাপদ রুট নির্ণীত',
+    sysStateMonitoring: 'বিপদ নিরীক্ষণ চলছে',
+    sysStateHazardDetected: 'বিপদ শনাক্ত হয়েছে',
+    sysStateRerouting: 'বিকল্প রুট গণনা চলছে',
+    sysStateExitReached: 'নিরাপদে বহির্গমন সম্পন্ন',
+    sysStateFailed: 'কোনো নিরাপদ পথ নেই',
+
+    // Explainability ("Why this route?")
+    whyThisRoute: 'কেন এই রুট?',
+    whyThisRouteDesc: 'ডাইকস্ট্রা অ্যালগরিদম ভিত্তিক রুট নির্বাচন টেলিমেট্রি ও সিদ্ধান্ত ম্যাট্রিক্স।',
+    selectedExitReason: 'সিদ্ধান্তের ভিত্তি',
+    alternativeExitsChecked: 'যাচাইকৃত বিকল্প নির্গমন দ্বার',
+    costBreakdown: 'করিডোর ট্রানজিট খরচ বিবরণী',
+    hazardsAffectingRoute: 'গ্রাফে সক্রিয় বিপদ',
+    exitOptimalLabel: 'সর্বোত্তম বহির্গমন',
+    exitSealedLabel: 'সিলকৃত / বন্ধ',
+    exitUnreachableLabel: 'অনধিগম্য',
+
+    // Data Inspector
+    buildingDataTitle: 'বিল্ডিং ডেটা ও গ্রাফ পরিদর্শক',
+    buildingNameLabel: 'বিল্ডিং নাম',
+    nodesLabel: 'মোট নোড',
+    corridorsLabel: 'করিডোর (এজ)',
+    roomsLabel: 'কক্ষ',
+    junctionsLabel: 'সংযোগস্থল',
+    exitsLabel: 'নির্গমন দ্বার',
+    activeHazardsLabel: 'সক্রিয় প্রতিবন্ধকতা',
+    graphHealthLabel: 'গ্রাফের স্থিতি',
+    graphHealthValid: 'বৈধ ও সুনির্দিষ্ট',
+    initialStateLabel: 'প্রাথমিক অবস্থা',
+    corridorsCount: 'করিডোর',
+
+    // Initial Loader
+    initializingBuilding: 'বিল্ডিং টপোলজি প্রস্তুত করা হচ্ছে...',
+    graphLoadedStep: 'গ্রাফ স্কিমা যাচাই ও লোড সম্পন্ন',
+    corridorsMappedStep: 'করিডোর ও সংযোগ ম্যাপিং সম্পন্ন',
+    exitsIdentifiedStep: 'বহির্গমন দ্বার শনাক্তকরণ সম্পন্ন',
+    routingReadyStep: 'ডাইকস্ট্রা ইঞ্জিন প্রস্তুত',
+    systemReadyStep: 'সিস্টেম প্রস্তুত',
+    skipIntro: 'স্কিপ করুন',
+
+    // Dataset Invalid Rejection
+    datasetInvalidTitle: 'ডেটাসেট সঠিক নয়',
+    couldNotLoadBuilding: 'এই বিল্ডিং ডেটা লোড করা যায়নি।',
+    problemPrefix: 'সমস্যা',
+    tryAnotherFile: 'অন্য ফাইল নির্বাচন করুন',
   },
 };

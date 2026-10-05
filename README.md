@@ -9,64 +9,53 @@ A mission-critical, frontend-only emergency evacuation pathfinder and tactical b
 
 ## 🌟 Key Features
 
-### Mandatory Features (P0 / P1)
-- **100% Offline-First & Client-Side Execution**: All graph modeling, Dijkstra pathfinding, hazard exclusion, and simulation run locally in the browser with zero external network reliance.
-- **Generalized Dynamic Dijkstra Pathfinder**:
-  - Dynamically constructs the undirected graph from floorplan data.
-  - Independent route computation unaffected by graphical coordinates.
-  - Excludes blocked nodes and their incident corridors completely.
-  - Excludes individually blocked corridor connections.
-  - Excludes sealed/closed emergency exits.
-  - Multi-exit pathfinding automatically picks the reachable open exit with minimum cumulative transit cost.
-  - **Strict Deterministic Tie-Breaking**:
-    1. Equal total path cost between exits $\rightarrow$ lexicographically smallest exit ID (`'E1'` before `'E2'`).
-    2. Equal path cost to the same exit $\rightarrow$ lexicographically smallest node-ID sequence.
-- **Official Contest Benchmark Scenarios Verified**:
-  - **Scenario 1 (Baseline)**: Start `R1` $\rightarrow$ `R1 -> C1 -> C2 -> E1` (Cost: 7)
-  - **Scenario 2 (Hazard Re-route)**: Block `C2` $\rightarrow$ `R1 -> C1 -> C3 -> C4 -> E2` (Cost: 11)
-  - **Scenario 3 (All Exits Sealed)**: Close `E1` and `E2` $\rightarrow$ `NO SAFE ROUTE AVAILABLE`
-  - **Scenario 4 (Alternate Origin)**: Start `R2` $\rightarrow$ `R2 -> C3 -> C4 -> E2` (Cost: 7)
-  - **Scenario 5 (Trapped Origin)**: Select `R1` then block `R1` $\rightarrow$ `STARTING LOCATION BLOCKED`
-- **Dynamic Interactive Hazard Controls**:
-  - Select origin from dropdown or click directly on map nodes.
-  - Toggle node hazards (fire/blockade) on the tactical map or control deck.
-  - Toggle corridor blockades.
-  - Toggle sealed/open exit doors.
-  - One-click reset to benchmark baseline.
-- **Comprehensive Bilingual Support (English & বাংলা)**:
-  - Global, accessible language toggle in header.
-  - 100% of headings, buttons, badges, errors, metrics, empty states, and system notifications translated without untranslated leakages.
-- **Resilient JSON Dataset Validation**:
-  - Drag-and-drop or paste custom floorplan JSON datasets.
-  - Comprehensive schema validation: checks node unique IDs, valid types (`room`, `corridor`, `exit`), positive edge weights ($> 0$), coordinate numbers, and graph connectivity.
-  - Granular, human-readable diagnostics with bilingual error and warning reporting.
-  - Export current scenario (topology + active hazard state) with a single click.
+### Architecture Overview
+```
+Input JSON
+   ↓
+Schema Validation & Sanitization
+   ↓
+Normalized Undirected Graph
+   ↓
+Hazard State (Blocked Nodes, Corridors, Closed Exits)
+   ↓
+Shortest Path Engine (Dijkstra + Priority Queue + Strict Tie-Break)
+   ↓
+Simulation State Machine
+   ├── 2D Command Center (Route Intelligence & Explainability Engine)
+   └── 3D Architectural World (Low-Poly Scene, Evacuee Avatar, Dynamic Lighting)
+```
 
-### Bonus Polish Features
-- **Tactical Interactive SVG Map**:
-  - Responsive coordinate bounding box and auto-centering.
-  - Glowing animated pulsing path along the calculated optimal route.
-  - Radar beacon animation on starting origin.
-  - Fire/hazard warning animations on blocked nodes and dashed red lines for blocked corridors.
-  - Zoom controls (In, Out, Reset) and intuitive hover inspection.
-- **Evacuation Step-Through Simulation Runner**:
-  - Play, pause, step forward, and reset an animated evacuation agent moving along the optimal route node-by-node.
-  - Configurable simulation speeds: `1x`, `2x`, and `4x`.
-- **Offline Web Audio API Sound Effects**:
-  - Synthetic tactical chimes on route found.
-  - Alert buzzer on hazard detection.
-  - Testable emergency evacuation wailing siren (100% offline, zero external audio assets).
-- **Cinematic 3D Evacuation Simulation & Dual Operational Modes**:
-  - **Mode A (Command Center)**: Sophisticated 3D architectural operations view with live controls, origin picker, hazards manager, and 2D route intelligence panel.
-  - **Mode B (Cinematic Simulation)**: Immersive full-screen evacuation mode triggered on "Simulate Escape" with dimmed ambient lighting, emergency red ceiling accents, and automatic siren wail.
-  - **Procedural Low-Poly Evacuee Character**: Minimalist industrial human avatar with procedural limb swinging, headlamp spotlight, reflective safety vest, and ground visibility halo.
-  - **Dynamic Real-Time Rerouting**: If a hazard is injected while the agent is in-flight (e.g. blocking C2), the simulation instantly halts safely, recalculates an alternative vector, flashes a reroute alert, and smoothly redirects the agent!
-  - **Cinematic Multi-Angle Camera Choreography**: Automated transitions between Follow Camera (behind agent with soft damping), Drone Overview, and Exit Gate arrival.
-  - **Framer Motion Result Modals**: Smooth animated overlays for "ESCAPE SUCCESSFUL" (with exit ID, cost, and corridor metrics) and "EVACUATION FAILED" (with graceful recovery options).
-- **Multiple Realistic Presets**:
-  - Contest Benchmark Complex (Dual exit baseline)
-  - Metropolitan Hospital (ICU Wing & Triage)
-  - Cyber Defense Datacenter & Bunker
+### 🌟 6 Pillars of Technical Excellence
+1. **Algorithm Impossible to Doubt**: Fully generalized Dijkstra with priority queue ($O((V+E) \log V)$) operating on dynamic graph topologies (2–60 nodes, 1–150 edges) with zero pre-baked or hard-coded assumptions.
+2. **Exact Contest Tie-Breaking**:
+   - Lowest total path cost wins.
+   - Equal cost between exits $\rightarrow$ lexicographically smallest exit ID (`'E1'` before `'E2'`).
+   - Equal cost to same exit $\rightarrow$ lexicographically smallest node-ID sequence.
+3. **Route Intelligence & Explainability Engine ("Why This Route?")**:
+   - Step-by-step corridor cost breakdown (`R1 → C1: +2`, `C1 → C3: +4`, `C3 → C4: +3`, `C4 → E2: +2`, Total: `11`).
+   - Evaluation matrix of all candidate exits (`E1: Sealed / Blocked`, `E2: Optimal (Cost 11)`).
+   - Clear decision rationale explaining why an alternative exit was chosen.
+4. **Live Operational System State Machine**:
+   - Formal states: `SYSTEM ARMED` $\rightarrow$ `ROUTE SECURED` $\rightarrow$ `MONITORING HAZARDS` $\rightarrow$ `SIMULATING` $\rightarrow$ `REROUTING` $\rightarrow$ `SAFE EXIT REACHED` / `NO SAFE ROUTE`.
+5. **Real-Time In-Flight Rerouting**:
+   - Dynamic hazard injection during evacuation transit immediately halts the agent safely, triggers an emergency reroute calculation, updates the luminous path, and seamlessly redirects the agent.
+6. **High-Performance 3D Scene Architecture**:
+   - Decoupled continuous 60fps Three.js animation loops (`useFrame` with refs) from React state rerenders.
+   - Lightweight procedural geometry, reusable materials, minimal particle overhead, and responsive isometric camera choreography.
+
+### Official Contest Benchmark Scenarios Verified:
+- **Scenario 1 (Baseline)**: Start `R1` $\rightarrow$ `R1 -> C1 -> C2 -> E1` (Cost: 7)
+- **Scenario 2 (Hazard Re-route)**: Block `C2` $\rightarrow$ `R1 -> C1 -> C3 -> C4 -> E2` (Cost: 11)
+- **Scenario 3 (All Exits Sealed)**: Close `E1` and `E2` $\rightarrow$ `NO SAFE ROUTE AVAILABLE`
+- **Scenario 4 (Alternate Origin)**: Start `R2` $\rightarrow$ `R2 -> C3 -> C4 -> E2` (Cost: 7)
+- **Scenario 5 (Trapped Origin)**: Select `R1` then block `R1` $\rightarrow$ `STARTING LOCATION BLOCKED`
+- **Tie-Break Edge 1**: Equal exit cost $\rightarrow$ picks `E1` over `E2`.
+- **Tie-Break Edge 2**: Equal path cost to same exit $\rightarrow$ picks `START -> A -> EXIT` over `START -> B -> EXIT`.
+
+### Building Data Inspector & JSON Diagnostic Engine:
+- **Data Inspector**: Displays building name, total nodes, room/junction/exit breakdowns, corridors count, active hazards count, baseline initial state, and `● GRAPH HEALTH: VALID` badge.
+- **Robust Error Diagnostics**: If an invalid file is uploaded (e.g. edge referencing unknown node `C8`), presents a high-contrast `DATASET INVALID` rejection report in English and বাংলা with exact problem identification and `[ TRY ANOTHER FILE ]` button.
 
 ---
 

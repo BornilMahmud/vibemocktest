@@ -12,9 +12,14 @@ import {
   RotateCcw, 
   Timer, 
   Gauge, 
-  DoorOpen 
+  DoorOpen,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Activity
 } from 'lucide-react';
 import type { RouteResult } from '../types/graph';
+import type { SimulationPhase } from '../types/simulation';
 import { translations, type Language } from '../i18n/translations';
 import { playClickSound } from '../lib/audio';
 
@@ -28,6 +33,8 @@ interface RouteIntelProps {
   simulationSpeed: number;
   onChangeSpeed: (spd: number) => void;
   language: Language;
+  simulationPhase?: SimulationPhase;
+  activeHazardsCount?: number;
 }
 
 export const RouteIntel: React.FC<RouteIntelProps> = ({
@@ -40,6 +47,8 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
   simulationSpeed,
   onChangeSpeed,
   language,
+  simulationPhase = 'IDLE',
+  activeHazardsCount = 0,
 }) => {
   const t = translations[language];
 
@@ -73,11 +82,44 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
 
   const StatusIcon = statusConfig.icon;
   const isFound = routeResult.status === 'OPTIMAL_ROUTE_FOUND';
+  const [isExplainOpen, setIsExplainOpen] = React.useState(true);
+
+  // Operational System State Machine Indicator
+  const systemState = React.useMemo(() => {
+    if (simulationPhase === 'SUCCESS') {
+      return { label: t.sysStateExitReached, color: 'text-emerald-400 bg-emerald-950/80 border-emerald-500/50', dot: 'bg-emerald-400' };
+    }
+    if (simulationPhase === 'REROUTING') {
+      return { label: t.sysStateRerouting, color: 'text-amber-400 bg-amber-950/80 border-amber-500/50', dot: 'bg-amber-400 animate-ping' };
+    }
+    if (simulationPhase === 'FAILED' || routeResult.status === 'NO_ROUTE_AVAILABLE' || routeResult.status === 'START_LOCATION_BLOCKED') {
+      return { label: t.sysStateFailed, color: 'text-rose-400 bg-rose-950/80 border-rose-500/50', dot: 'bg-rose-500' };
+    }
+    if (simulationPhase === 'RUNNING') {
+      return { label: language === 'bn' ? 'সিমুলেশন চলছে...' : 'SIMULATING ESCAPE', color: 'text-sky-400 bg-sky-950/80 border-sky-500/50', dot: 'bg-sky-400 animate-pulse' };
+    }
+    if (activeHazardsCount > 0) {
+      return { label: t.sysStateMonitoring, color: 'text-amber-300 bg-amber-950/60 border-amber-500/40', dot: 'bg-amber-400' };
+    }
+    if (isFound) {
+      return { label: t.sysStateRouteFound, color: 'text-emerald-300 bg-emerald-950/60 border-emerald-500/40', dot: 'bg-emerald-400' };
+    }
+    return { label: t.sysStateArmed, color: 'text-cyan-300 bg-cyan-950/60 border-cyan-500/40', dot: 'bg-cyan-400' };
+  }, [simulationPhase, routeResult.status, activeHazardsCount, isFound, language, t]);
 
   return (
-    <aside className="w-full lg:w-80 xl:w-96 flex flex-col gap-4 bg-slate-900/60 border border-sky-500/20 rounded-2xl p-4 backdrop-blur-md shadow-2xl overflow-y-auto max-h-[calc(100vh-100px)]">
+    <aside className="w-full lg:w-80 xl:w-96 flex flex-col gap-3.5 bg-slate-900/60 border border-sky-500/20 rounded-2xl p-4 backdrop-blur-md shadow-2xl overflow-y-auto max-h-[calc(100vh-100px)]">
+      {/* 0. LIVE OPERATIONAL SYSTEM STATE */}
+      <div className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-bold flex items-center justify-between shadow-sm ${systemState.color}`}>
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${systemState.dot}`} />
+          <span className="tracking-wide uppercase">{systemState.label}</span>
+        </div>
+        <Activity className="w-3.5 h-3.5 opacity-80" />
+      </div>
+
       {/* 1. HERO ROUTE STATUS BANNER */}
-      <div className={`p-4 rounded-xl border flex flex-col gap-2 transition-all ${statusConfig.style}`}>
+      <div className={`p-3.5 rounded-xl border flex flex-col gap-2 transition-all ${statusConfig.style}`}>
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-slate-950/60">
             {t.routeStatus}
@@ -88,12 +130,12 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
           {statusConfig.title}
         </div>
         {routeResult.status === 'START_LOCATION_BLOCKED' && (
-          <p className="text-xs text-rose-200/90 leading-relaxed">
+          <p className="text-xs text-rose-200/90 leading-relaxed font-sans">
             {t.startBlockedDesc}
           </p>
         )}
         {routeResult.status === 'NO_ROUTE_AVAILABLE' && (
-          <p className="text-xs text-amber-200/90 leading-relaxed">
+          <p className="text-xs text-amber-200/90 leading-relaxed font-sans">
             {t.noRouteDesc}
           </p>
         )}
@@ -134,7 +176,7 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
             <span className="text-[11px] text-slate-400">{t.totalSteps}</span>
             <span className="text-xs font-mono font-bold text-slate-200">
-              {routeResult.path.length}
+              {routeResult.path.length} ({routeResult.path.length - 1} {t.corridorsCount})
             </span>
           </div>
 
@@ -151,7 +193,99 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
         </div>
       )}
 
-      {/* 3. OPTIMAL PATH SEQUENCE CHAIN */}
+      {/* 3. EXPLAINABILITY ENGINE: "WHY THIS ROUTE?" (Judge Inspectable Panel) */}
+      {isFound && (
+        <div className="bg-slate-950/80 border border-cyan-500/30 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-lg">
+          <div 
+            onClick={() => setIsExplainOpen(!isExplainOpen)}
+            className="flex items-center justify-between cursor-pointer select-none border-b border-slate-800/80 pb-2"
+          >
+            <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              {t.whyThisRoute}
+            </span>
+            {isExplainOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </div>
+
+          {isExplainOpen && (
+            <div className="flex flex-col gap-2.5 text-xs">
+              {/* Decision Basis Summary */}
+              <div className="p-2 rounded-lg bg-cyan-950/30 border border-cyan-800/40 text-[11px] text-cyan-200 leading-relaxed font-sans">
+                {routeResult.explanation?.[language] || routeResult.explanation?.en || (
+                  language === 'bn' 
+                    ? `সর্বনিম্ন মোট খরচে নির্গমন পথ নিশ্চিত করতে ${routeResult.destinationExitId} নির্বাচিত হয়েছে।`
+                    : `Selected ${routeResult.destinationExitId} as the lowest-cost reachable egress point.`
+                )}
+              </div>
+
+              {/* Corridor Transit Breakdown Table */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {t.costBreakdown}
+                </span>
+                <div className="bg-slate-900/90 rounded-lg border border-slate-800 p-2 flex flex-col gap-1 font-mono text-[11px]">
+                  {routeResult.steps.map((step, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-slate-300 py-0.5 border-b border-slate-800/50 last:border-none">
+                      <span>{step.fromNode.id} → {step.toNode.id}</span>
+                      <span className="text-cyan-400 font-bold">+{step.edgeCost}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between text-emerald-400 font-bold pt-1 border-t border-slate-800">
+                    <span className="uppercase text-[10px] tracking-wider">{language === 'bn' ? 'মোট খরচ' : 'TOTAL COST'}</span>
+                    <span className="text-sm">{routeResult.totalCost}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Alternative Exits Evaluated Matrix */}
+              {routeResult.exitEvaluations && routeResult.exitEvaluations.length > 0 && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {t.alternativeExitsChecked}
+                  </span>
+                  <div className="grid grid-cols-1 gap-1">
+                    {routeResult.exitEvaluations.map((ev) => {
+                      const isSelected = ev.exitId === routeResult.destinationExitId;
+                      return (
+                        <div
+                          key={ev.exitId}
+                          className={`px-2 py-1.5 rounded-md text-[11px] flex items-center justify-between font-mono border ${
+                            isSelected
+                              ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300'
+                              : ev.status === 'SEALED'
+                              ? 'bg-amber-950/40 border-amber-800/40 text-amber-400'
+                              : ev.status === 'REACHABLE_HIGHER_COST'
+                              ? 'bg-slate-900 border-slate-800 text-slate-300'
+                              : 'bg-rose-950/40 border-rose-800/40 text-rose-400'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold">{ev.exitId}</span>
+                            <span className="text-[9px] opacity-75 truncate max-w-[110px]">
+                              {ev.exitName[language] || ev.exitName.en}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-bold">
+                            {isSelected 
+                              ? `${t.exitOptimalLabel} (${ev.cost})` 
+                              : ev.status === 'SEALED' 
+                              ? t.exitSealedLabel 
+                              : ev.status === 'REACHABLE_HIGHER_COST'
+                              ? `Cost ${ev.cost}`
+                              : t.exitUnreachableLabel}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 4. OPTIMAL PATH SEQUENCE CHAIN */}
       {isFound && (
         <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 flex flex-col gap-2">
           <span className="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -189,7 +323,7 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
         </div>
       )}
 
-      {/* 4. EVACUATION SIMULATOR CONTROLS */}
+      {/* 5. EVACUATION SIMULATOR CONTROLS */}
       {isFound && (
         <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 flex flex-col gap-3">
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
@@ -269,7 +403,7 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
         </div>
       )}
 
-      {/* 5. STEP-BY-STEP TURN-BY-TURN GUIDANCE */}
+      {/* 6. STEP-BY-STEP TURN-BY-TURN GUIDANCE */}
       {isFound && routeResult.steps.length > 0 && (
         <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 flex flex-col gap-2">
           <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
@@ -310,3 +444,4 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
     </aside>
   );
 };
+
