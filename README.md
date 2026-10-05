@@ -108,7 +108,7 @@ npm run preview
 ---
 
 ## 🌐 Live Demo & Repository
-- **GitHub Repository**: Public contest repository
+- **GitHub Repository**: [https://github.com/BornilMahmud/vibemocktest](https://github.com/BornilMahmud/vibemocktest)
 - **Deployment Platform**: Vercel / Cloudflare Pages / GitHub Pages (Static HTTPS Frontend)
 
 ---
