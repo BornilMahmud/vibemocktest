@@ -56,15 +56,13 @@ A mission-critical, frontend-only emergency evacuation pathfinder and tactical b
   - Synthetic tactical chimes on route found.
   - Alert buzzer on hazard detection.
   - Testable emergency evacuation wailing siren (100% offline, zero external audio assets).
-- **3D Emergency Operations Command Center (Three.js & React Three Fiber)**:
-  - Full architectural isometric 3D visualization using Three.js, `@react-three/fiber`, and `@react-three/drei`.
-  - Atmospheric depth with subtle cyber fog, directional soft shadows, and tactical floor grid.
-  - 3D physical platforms for Rooms, cylindrical Junction hubs, and green illuminated Exit portals with vertical light beams.
-  - Luminous 3D CatmullRom energy tube with animated moving photon pulses along the optimal escape path.
-  - Animated red/orange pulsing hazard beacons and warning markers on blocked nodes/corridors.
-  - 3D simulation runner avatar moving along the route during step-by-step playback.
-  - Orbit controls with architectural pitch limits, smooth damping, and one-click camera reset.
-  - Seamless toggle between **3D Command Deck** and **2D Blueprint Floorplan** in the header.
+- **Cinematic 3D Evacuation Simulation & Dual Operational Modes**:
+  - **Mode A (Command Center)**: Sophisticated 3D architectural operations view with live controls, origin picker, hazards manager, and 2D route intelligence panel.
+  - **Mode B (Cinematic Simulation)**: Immersive full-screen evacuation mode triggered on "Simulate Escape" with dimmed ambient lighting, emergency red ceiling accents, and automatic siren wail.
+  - **Procedural Low-Poly Evacuee Character**: Minimalist industrial human avatar with procedural limb swinging, headlamp spotlight, reflective safety vest, and ground visibility halo.
+  - **Dynamic Real-Time Rerouting**: If a hazard is injected while the agent is in-flight (e.g. blocking C2), the simulation instantly halts safely, recalculates an alternative vector, flashes a reroute alert, and smoothly redirects the agent!
+  - **Cinematic Multi-Angle Camera Choreography**: Automated transitions between Follow Camera (behind agent with soft damping), Drone Overview, and Exit Gate arrival.
+  - **Framer Motion Result Modals**: Smooth animated overlays for "ESCAPE SUCCESSFUL" (with exit ID, cost, and corridor metrics) and "EVACUATION FAILED" (with graceful recovery options).
 - **Multiple Realistic Presets**:
   - Contest Benchmark Complex (Dual exit baseline)
   - Metropolitan Hospital (ICU Wing & Triage)

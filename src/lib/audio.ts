@@ -194,3 +194,67 @@ export function stopSiren() {
     }
   }
 }
+
+/**
+ * Celebratory fanfare when the agent reaches the emergency exit safely
+ */
+export function playSuccessFanfare() {
+  if (!isAudioEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    // Major triad arpeggio: C5, E5, G5, C6 (chord sustain)
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+
+      gain.gain.setValueAtTime(0.12, now + idx * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.5);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.1);
+      osc.stop(now + idx * 0.1 + 0.5);
+    });
+  } catch {
+    // Ignore autoplay restriction
+  }
+}
+
+/**
+ * Serious alarm buzzer when the evacuation route is blocked with no escape
+ */
+export function playFailureAlarm() {
+  if (!isAudioEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(90, now + 0.4);
+
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.45);
+  } catch {
+    // Ignore autoplay restriction
+  }
+}
+
