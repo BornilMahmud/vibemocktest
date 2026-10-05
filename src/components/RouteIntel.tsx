@@ -249,7 +249,7 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
                       return (
                         <div
                           key={ev.exitId}
-                          className={`px-2 py-1.5 rounded-md text-[11px] flex items-center justify-between font-mono border ${
+                          className={`px-2 py-1.5 rounded-md text-[11px] flex items-center justify-between gap-2 font-mono border ${
                             isSelected
                               ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300'
                               : ev.status === 'SEALED'
@@ -259,13 +259,13 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
                               : 'bg-rose-950/40 border-rose-800/40 text-rose-400'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold">{ev.exitId}</span>
-                            <span className="text-[9px] opacity-75 truncate max-w-[110px]">
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                            <span className="font-bold flex-shrink-0">{ev.exitId}</span>
+                            <span className="text-[9px] opacity-75 truncate">
                               {ev.exitName[language] || ev.exitName.en}
                             </span>
                           </div>
-                          <span className="text-[10px] font-bold">
+                          <span className="text-[10px] font-bold flex-shrink-0 text-right">
                             {isSelected 
                               ? `${t.exitOptimalLabel} (${ev.cost})` 
                               : ev.status === 'SEALED' 

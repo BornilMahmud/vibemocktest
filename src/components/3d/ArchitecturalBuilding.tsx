@@ -133,16 +133,16 @@ export const RoomSpace: React.FC<RoomSpaceProps> = ({
         </group>
       )}
 
-      {/* Floating 3D Room Name Tag */}
-      <Html position={[0, wallH + 0.8, 0]} center distanceFactor={24} className="pointer-events-none select-none">
+      {/* Floating 3D Room Name Tag (Compact & Elevated) */}
+      <Html position={[0, wallH + 1.2, 0]} center distanceFactor={26} className="pointer-events-none select-none">
         <div
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold shadow-2xl border backdrop-blur-md whitespace-nowrap transition-all ${
+          className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold shadow-xl border backdrop-blur-md whitespace-nowrap transition-all ${
             isBlocked
-              ? 'bg-rose-950/90 text-rose-300 border-rose-500 shadow-rose-900/50'
+              ? 'bg-rose-950/95 text-rose-300 border-rose-500 shadow-rose-900/50'
               : isStart
-              ? 'bg-sky-950/90 text-sky-200 border-sky-400 shadow-sky-900/50'
+              ? 'bg-sky-950/95 text-sky-200 border-sky-400 shadow-sky-900/50'
               : isPartOfRoute
-              ? 'bg-cyan-950/90 text-cyan-300 border-cyan-400'
+              ? 'bg-cyan-950/95 text-cyan-300 border-cyan-400'
               : 'bg-slate-900/90 text-slate-200 border-slate-700/80'
           }`}
         >
@@ -152,9 +152,11 @@ export const RoomSpace: React.FC<RoomSpaceProps> = ({
             <Compass className="w-3 h-3 text-sky-400" />
           ) : null}
           <span>{node.id}</span>
-          <span className="text-[9px] opacity-75 font-sans hidden sm:inline">
-            {node.name[language] || node.name.en}
-          </span>
+          {hovered && (
+            <span className="text-[9px] opacity-80 font-sans pl-0.5">
+              {node.name[language] || node.name.en}
+            </span>
+          )}
         </div>
       </Html>
     </group>
@@ -246,23 +248,25 @@ export const JunctionHub: React.FC<JunctionHubProps> = ({
         />
       </mesh>
 
-      {/* Floating 3D Junction Tag */}
-      <Html position={[0, 1.1, 0]} center distanceFactor={24} className="pointer-events-none select-none">
+      {/* Floating 3D Junction Tag (Compact Round Pill) */}
+      <Html position={[0, 0.85, 0]} center distanceFactor={26} className="pointer-events-none select-none">
         <div
-          className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold border backdrop-blur-md ${
+          className={`min-w-5 h-5 px-1.5 rounded-full flex items-center justify-center text-[9px] font-mono font-black border backdrop-blur-md shadow-lg transition-all ${
             isBlocked
-              ? 'bg-rose-950/90 text-rose-300 border-rose-500'
+              ? 'bg-rose-950/95 text-rose-300 border-rose-500'
               : isStart
-              ? 'bg-sky-950/90 text-sky-200 border-sky-400'
+              ? 'bg-sky-950/95 text-sky-200 border-sky-400'
               : isPartOfRoute
-              ? 'bg-cyan-950/90 text-cyan-300 border-cyan-400'
-              : 'bg-slate-950/80 text-slate-300 border-slate-800'
+              ? 'bg-cyan-950/95 text-cyan-300 border-cyan-400'
+              : 'bg-slate-950/90 text-slate-300 border-slate-800'
           }`}
         >
           <span>{node.id}</span>
-          <span className="text-[8px] opacity-75 font-sans hidden sm:inline">
-            {node.name[language] || node.name.en}
-          </span>
+          {hovered && (
+            <span className="text-[8px] opacity-80 font-sans pl-1 whitespace-nowrap">
+              {node.name[language] || node.name.en}
+            </span>
+          )}
         </div>
       </Html>
     </group>
@@ -364,18 +368,19 @@ export const ExitPortal: React.FC<ExitPortalProps> = ({
         distance={6}
       />
 
-      {/* Floating 3D Exit Tag */}
-      <Html position={[0, 2.8, 0]} center distanceFactor={24} className="pointer-events-none select-none">
+      {/* Floating 3D Exit Tag (Elevated & Concise) */}
+      <Html position={[0, 2.5, 0]} center distanceFactor={26} className="pointer-events-none select-none">
         <div
           onClick={onToggle}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold shadow-2xl border backdrop-blur-md cursor-pointer pointer-events-auto transition-all ${
+          className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-black shadow-2xl border backdrop-blur-md cursor-pointer pointer-events-auto transition-all ${
             isClosed
               ? 'bg-amber-950/95 text-amber-300 border-amber-500 shadow-amber-950/50'
               : 'bg-emerald-950/95 text-emerald-200 border-emerald-400 shadow-emerald-950/50 animate-pulse'
           }`}
         >
-          {isClosed ? <DoorClosed className="w-3.5 h-3.5" /> : <LogOut className="w-3.5 h-3.5" />}
-          <span>{node.id}: {isClosed ? (language === 'bn' ? 'সিলকৃত' : 'SEALED') : (language === 'bn' ? 'নির্গমন' : 'EXIT')}</span>
+          {isClosed ? <DoorClosed className="w-3 h-3 text-amber-400" /> : <LogOut className="w-3 h-3 text-emerald-400" />}
+          <span>{node.id}</span>
+          <span className="text-[8px] uppercase tracking-wide opacity-80">{isClosed ? (language === 'bn' ? 'সিলকৃত' : 'SEALED') : (language === 'bn' ? 'বের হন' : 'EXIT')}</span>
         </div>
       </Html>
     </group>
@@ -449,19 +454,19 @@ export const WalkableCorridor: React.FC<WalkableCorridorProps> = ({
         />
       </mesh>
 
-      {/* Floating Corridor Transit Cost Badge */}
-      <Html position={[midPoint.x, midPoint.y + 0.5, midPoint.z]} center distanceFactor={24}>
+      {/* Floating Corridor Transit Cost Badge (Compact Round Badge) */}
+      <Html position={[midPoint.x, midPoint.y + 0.35, midPoint.z]} center distanceFactor={30}>
         <div
           onClick={(e) => {
             e.stopPropagation();
             onToggle();
           }}
-          className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold cursor-pointer transition-all border shadow-lg ${
+          className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-mono font-black cursor-pointer transition-all border shadow-md ${
             isBlocked
-              ? 'bg-rose-950/90 text-rose-300 border-rose-500'
+              ? 'bg-rose-950/95 text-rose-300 border-rose-500'
               : isPartOfRoute
-              ? 'bg-sky-950/90 text-sky-200 border-sky-400'
-              : 'bg-slate-950/90 text-slate-400 border-slate-800 hover:border-sky-500'
+              ? 'bg-sky-950/95 text-sky-200 border-sky-400 ring-1 ring-sky-400/50'
+              : 'bg-slate-950/90 text-slate-400 border-slate-800 hover:border-sky-500 hover:text-slate-200'
           }`}
           title={`Corridor transit cost: ${edge.cost}`}
         >

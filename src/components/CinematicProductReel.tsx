@@ -60,6 +60,200 @@ interface SceneHelpers {
   audioOn: boolean;
 }
 
+const TOTAL_DURATION = 90; // 90 seconds presentation
+
+const scenes: SceneMarker[] = [
+  {
+    id: 1,
+    time: 0,
+    duration: 5,
+    title: "SMART ESCAPE",
+    subtitle: "INTERACTIVE EVACUATION ROUTE SIMULATOR",
+    tag: "01 // OPENING HOOK",
+    setup: (h) => {
+      h.exitSim();
+      h.setFloorplan(CONTEST_BENCHMARK_PRESET);
+      h.setStartNode('R1');
+      h.setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
+      h.setCameraMode('OVERVIEW');
+      stopSiren();
+    }
+  },
+  {
+    id: 2,
+    time: 5,
+    duration: 5,
+    title: "THE PROBLEM",
+    subtitle: "One building. Multiple paths. One safest escape.",
+    tag: "02 // PROBLEM STATEMENT",
+    setup: (h) => {
+      h.setCameraMode('OVERVIEW');
+      if (h.audioOn) playRouteFoundSound();
+    }
+  },
+  {
+    id: 3,
+    time: 10,
+    duration: 6,
+    title: "ORIGIN & CALCULATION",
+    subtitle: "Select Room 101 (R1) • Optimal Route: R1 → C1 → C2 → E1 (Cost: 7)",
+    tag: "03 // SHORTEST PATH ENGINE",
+    setup: (h) => {
+      h.setStartNode('R1');
+      h.setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
+      h.setCameraMode('OVERVIEW');
+      if (h.audioOn) playRouteFoundSound();
+    }
+  },
+  {
+    id: 4,
+    time: 16,
+    duration: 6,
+    title: "ARCHITECTURAL 3D WORLD",
+    subtitle: "Every room, corridor, and exit gate is generated directly from building data.",
+    tag: "04 // DATA-DRIVEN ENVIRONMENT",
+    setup: (h) => {
+      h.setCameraMode('ORBIT');
+    }
+  },
+  {
+    id: 5,
+    time: 22,
+    duration: 8,
+    title: "HAZARD INJECTION",
+    subtitle: "Corridor C2 is blocked! Current escape route is immediately severed.",
+    tag: "05 // ROUTE INTERRUPTED",
+    setup: (h) => {
+      h.setCameraMode('OVERVIEW');
+      h.setHazards({ blockedNodes: new Set(['C2']), blockedEdges: new Set(), closedExits: new Set() });
+      if (h.audioOn) playHazardAlertSound();
+    }
+  },
+  {
+    id: 6,
+    time: 30,
+    duration: 8,
+    title: "INTELLIGENT REROUTING",
+    subtitle: "NEW ROUTE SECURED: R1 → C1 → C3 → C4 → E2 (Total Cost: 11)",
+    tag: "06 // REAL-TIME RECALCULATION",
+    setup: (h) => {
+      h.setCameraMode('OVERVIEW');
+      if (h.audioOn) playRouteFoundSound();
+    }
+  },
+  {
+    id: 7,
+    time: 38,
+    duration: 7,
+    title: "START SIMULATION",
+    subtitle: "Evacuation agent launches calmly. Follow camera engages.",
+    tag: "07 // 3D TRANSIT INITIALIZATION",
+    setup: (h) => {
+      h.startSim();
+      h.setCameraMode('FOLLOW');
+    }
+  },
+  {
+    id: 8,
+    time: 45,
+    duration: 8,
+    title: "DYNAMIC EVACUEE TRANSIT",
+    subtitle: "Navigating waypoints across safe corridors • Turning towards Exit Gate E2",
+    tag: "08 // CORRIDOR NAVIGATION",
+    setup: (h) => {
+      h.setCameraMode('FOLLOW');
+    }
+  },
+  {
+    id: 9,
+    time: 53,
+    duration: 7,
+    title: "ESCAPE SUCCESSFUL",
+    subtitle: "SAFE EXIT REACHED • Exit: E2 • Total Cost: 11 • Fanfare & Calm Lighting",
+    tag: "09 // SUCCESS OUTCOME",
+    setup: (h) => {
+      h.setSimulationPhase('SUCCESS');
+      h.setCameraMode('EXIT');
+      stopSiren();
+      if (h.audioOn) playSuccessFanfare();
+    }
+  },
+  {
+    id: 10,
+    time: 60,
+    duration: 12,
+    title: "TRAPPED / FAILURE SCENARIO",
+    subtitle: "When all exits are sealed (E1 & E2 closed), agent begins a best-effort traversal.",
+    tag: "10 // NO ESCAPE ROUTE EXISTS",
+    setup: (h) => {
+      h.exitSim();
+      h.setStartNode('R1');
+      h.setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set(['E1', 'E2']) });
+      stopSiren();
+      setTimeout(() => {
+        h.startSim();
+        h.setCameraMode('FOLLOW');
+      }, 1200);
+    }
+  },
+  {
+    id: 11,
+    time: 72,
+    duration: 6,
+    title: "DEAD END // REALIZATION",
+    subtitle: "Agent reaches C4 • Route extinguishes • SIREN ON • Rapid red emergency strobes pulse.",
+    tag: "11 // FAILURE ACTIVATION",
+    setup: (h) => {
+      h.setSimulationPhase('TRAPPED');
+      h.setCameraMode('TRAPPED');
+      if (h.audioOn) {
+        startSiren();
+        setTimeout(() => stopSiren(), 4000);
+      }
+    }
+  },
+  {
+    id: 12,
+    time: 78,
+    duration: 6,
+    title: "EVACUATION FAILED OVERLAY",
+    subtitle: "Last Position: Junction C4 • Exits Available: 0 • Serious tactical assessment.",
+    tag: "12 // TELEMETRY & DIAGNOSTICS",
+    setup: (h) => {
+      h.setSimulationPhase('FAILED');
+      h.setCameraMode('FAILED');
+      if (h.audioOn) playFailureAlarm();
+    }
+  },
+  {
+    id: 13,
+    time: 84,
+    duration: 4,
+    title: "BILINGUAL COMMAND CENTER",
+    subtitle: "Full operational fidelity in English and বাংলা • Instant real-time toggle.",
+    tag: "13 // GLOBAL ACCESSIBILITY",
+    setup: (h) => {
+      h.setLanguage('bn');
+      h.exitSim();
+      h.setCameraMode('OVERVIEW');
+      setTimeout(() => h.setLanguage('en'), 2000);
+    }
+  },
+  {
+    id: 14,
+    time: 88,
+    duration: 2,
+    title: "SMART ESCAPE",
+    subtitle: "Build. Calculate. Adapt. Escape. • Interactive Evacuation Route Simulator",
+    tag: "14 // FINAL HERO FRAME",
+    setup: (h) => {
+      h.setCameraMode('OVERVIEW');
+      stopSiren();
+      if (h.audioOn) playRouteFoundSound();
+    }
+  }
+];
+
 export const CinematicProductReel: React.FC<CinematicProductReelProps> = ({
   isOpen,
   onClose,
@@ -71,7 +265,6 @@ export const CinematicProductReel: React.FC<CinematicProductReelProps> = ({
   onSetCameraMode,
   onStartSimulation,
   onExitSimulation,
-  currentLanguage,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -79,199 +272,29 @@ export const CinematicProductReel: React.FC<CinematicProductReelProps> = ({
   const [activeSceneIdx, setActiveSceneIdx] = useState<number>(0);
   const playbackIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const TOTAL_DURATION = 90; // 90 seconds presentation
+  const helpersRef = useRef({
+    onSetFloorplan,
+    onSetStartNode,
+    onSetHazards,
+    onSetLanguage,
+    onSetSimulationPhase,
+    onSetCameraMode,
+    onStartSimulation,
+    onExitSimulation,
+  });
 
-  const scenes: SceneMarker[] = [
-    {
-      id: 1,
-      time: 0,
-      duration: 5,
-      title: "SMART ESCAPE",
-      subtitle: "INTERACTIVE EVACUATION ROUTE SIMULATOR",
-      tag: "01 // OPENING HOOK",
-      setup: (h) => {
-        h.exitSim();
-        h.setFloorplan(CONTEST_BENCHMARK_PRESET);
-        h.setStartNode('R1');
-        h.setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
-        h.setCameraMode('OVERVIEW');
-        stopSiren();
-      }
-    },
-    {
-      id: 2,
-      time: 5,
-      duration: 5,
-      title: "THE PROBLEM",
-      subtitle: "One building. Multiple paths. One safest escape.",
-      tag: "02 // PROBLEM STATEMENT",
-      setup: (h) => {
-        h.setCameraMode('OVERVIEW');
-        if (h.audioOn) playRouteFoundSound();
-      }
-    },
-    {
-      id: 3,
-      time: 10,
-      duration: 6,
-      title: "ORIGIN & CALCULATION",
-      subtitle: "Select Room 101 (R1) • Optimal Route: R1 → C1 → C2 → E1 (Cost: 7)",
-      tag: "03 // SHORTEST PATH ENGINE",
-      setup: (h) => {
-        h.setStartNode('R1');
-        h.setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
-        h.setCameraMode('OVERVIEW');
-        if (h.audioOn) playRouteFoundSound();
-      }
-    },
-    {
-      id: 4,
-      time: 16,
-      duration: 6,
-      title: "ARCHITECTURAL 3D WORLD",
-      subtitle: "Every room, corridor, and exit gate is generated directly from building data.",
-      tag: "04 // DATA-DRIVEN ENVIRONMENT",
-      setup: (h) => {
-        h.setCameraMode('ORBIT');
-      }
-    },
-    {
-      id: 5,
-      time: 22,
-      duration: 8,
-      title: "HAZARD INJECTION",
-      subtitle: "Corridor C2 is blocked! Current escape route is immediately severed.",
-      tag: "05 // ROUTE INTERRUPTED",
-      setup: (h) => {
-        h.setCameraMode('OVERVIEW');
-        h.setHazards({ blockedNodes: new Set(['C2']), blockedEdges: new Set(), closedExits: new Set() });
-        if (h.audioOn) playHazardAlertSound();
-      }
-    },
-    {
-      id: 6,
-      time: 30,
-      duration: 8,
-      title: "INTELLIGENT REROUTING",
-      subtitle: "NEW ROUTE SECURED: R1 → C1 → C3 → C4 → E2 (Total Cost: 11)",
-      tag: "06 // REAL-TIME RECALCULATION",
-      setup: (h) => {
-        h.setCameraMode('OVERVIEW');
-        if (h.audioOn) playRouteFoundSound();
-      }
-    },
-    {
-      id: 7,
-      time: 38,
-      duration: 7,
-      title: "START SIMULATION",
-      subtitle: "Evacuation agent launches calmly. Follow camera engages.",
-      tag: "07 // 3D TRANSIT INITIALIZATION",
-      setup: (h) => {
-        h.startSim();
-        h.setCameraMode('FOLLOW');
-      }
-    },
-    {
-      id: 8,
-      time: 45,
-      duration: 8,
-      title: "DYNAMIC EVACUEE TRANSIT",
-      subtitle: "Navigating waypoints across safe corridors • Turning towards Exit Gate E2",
-      tag: "08 // CORRIDOR NAVIGATION",
-      setup: (h) => {
-        h.setCameraMode('FOLLOW');
-      }
-    },
-    {
-      id: 9,
-      time: 53,
-      duration: 7,
-      title: "ESCAPE SUCCESSFUL",
-      subtitle: "SAFE EXIT REACHED • Exit: E2 • Total Cost: 11 • Fanfare & Calm Lighting",
-      tag: "09 // SUCCESS OUTCOME",
-      setup: (h) => {
-        h.setSimulationPhase('SUCCESS');
-        h.setCameraMode('EXIT');
-        stopSiren();
-        if (h.audioOn) playSuccessFanfare();
-      }
-    },
-    {
-      id: 10,
-      time: 60,
-      duration: 12,
-      title: "TRAPPED / FAILURE SCENARIO",
-      subtitle: "When all exits are sealed (E1 & E2 closed), agent begins a best-effort traversal.",
-      tag: "10 // NO ESCAPE ROUTE EXISTS",
-      setup: (h) => {
-        h.exitSim();
-        h.setStartNode('R1');
-        h.setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set(['E1', 'E2']) });
-        stopSiren();
-        setTimeout(() => {
-          h.startSim();
-          h.setCameraMode('FOLLOW');
-        }, 1200);
-      }
-    },
-    {
-      id: 11,
-      time: 72,
-      duration: 6,
-      title: "DEAD END // REALIZATION",
-      subtitle: "Agent reaches C4 • Route extinguishes • SIREN ON • Rapid red emergency strobes pulse.",
-      tag: "11 // FAILURE ACTIVATION",
-      setup: (h) => {
-        h.setSimulationPhase('TRAPPED');
-        h.setCameraMode('TRAPPED');
-        if (h.audioOn) {
-          startSiren();
-          setTimeout(() => stopSiren(), 4000);
-        }
-      }
-    },
-    {
-      id: 12,
-      time: 78,
-      duration: 6,
-      title: "EVACUATION FAILED OVERLAY",
-      subtitle: "Last Position: Junction C4 • Exits Available: 0 • Serious tactical assessment.",
-      tag: "12 // TELEMETRY & DIAGNOSTICS",
-      setup: (h) => {
-        h.setSimulationPhase('FAILED');
-        h.setCameraMode('FAILED');
-        if (h.audioOn) playFailureAlarm();
-      }
-    },
-    {
-      id: 13,
-      time: 84,
-      duration: 4,
-      title: "BILINGUAL COMMAND CENTER",
-      subtitle: "Full operational fidelity in English and বাংলা • Instant real-time toggle.",
-      tag: "13 // GLOBAL ACCESSIBILITY",
-      setup: (h) => {
-        h.setLanguage(currentLanguage === 'en' ? 'bn' : 'en');
-        h.exitSim();
-        h.setCameraMode('OVERVIEW');
-        setTimeout(() => h.setLanguage('en'), 2000);
-      }
-    },
-    {
-      id: 14,
-      time: 88,
-      duration: 2,
-      title: "SMART ESCAPE",
-      subtitle: "Build. Calculate. Adapt. Escape. • Interactive Evacuation Route Simulator",
-      tag: "14 // FINAL HERO FRAME",
-      setup: (h) => {
-        h.setCameraMode('OVERVIEW');
-        stopSiren();
-        if (h.audioOn) playRouteFoundSound();
-      }
-    }
-  ];
+  useEffect(() => {
+    helpersRef.current = {
+      onSetFloorplan,
+      onSetStartNode,
+      onSetHazards,
+      onSetLanguage,
+      onSetSimulationPhase,
+      onSetCameraMode,
+      onStartSimulation,
+      onExitSimulation,
+    };
+  });
 
   // Trigger scene setup when currentTime crosses into a scene
   const lastTriggeredSceneRef = useRef<number>(-1);
@@ -288,15 +311,16 @@ export const CinematicProductReel: React.FC<CinematicProductReelProps> = ({
       lastTriggeredSceneRef.current = sceneIdx;
       setActiveSceneIdx(sceneIdx);
       const scene = scenes[sceneIdx];
+      const h = helpersRef.current;
       scene.setup({
-        setFloorplan: onSetFloorplan,
-        setStartNode: onSetStartNode,
-        setHazards: onSetHazards,
-        setLanguage: onSetLanguage,
-        setSimulationPhase: onSetSimulationPhase,
-        setCameraMode: onSetCameraMode,
-        startSim: onStartSimulation,
-        exitSim: onExitSimulation,
+        setFloorplan: h.onSetFloorplan,
+        setStartNode: h.onSetStartNode,
+        setHazards: h.onSetHazards,
+        setLanguage: h.onSetLanguage,
+        setSimulationPhase: h.onSetSimulationPhase,
+        setCameraMode: h.onSetCameraMode,
+        startSim: h.onStartSimulation,
+        exitSim: h.onExitSimulation,
         audioOn: audioEnabled
       });
     }
@@ -379,21 +403,21 @@ export const CinematicProductReel: React.FC<CinematicProductReelProps> = ({
         </button>
       </div>
 
-      {/* 2. CENTER FLOATING CINEMATIC SUBTITLE OVERLAY */}
-      <div className="self-center w-full max-w-4xl px-4 flex flex-col items-center text-center pointer-events-none">
+      {/* 2. LOWER CINEMATIC SUBTITLE OVERLAY (Positioned safely above bottom controls) */}
+      <div className="self-center w-full max-w-xl px-4 pb-2 flex flex-col items-center text-center pointer-events-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentScene.id}
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4 }}
-            className="bg-slate-950/85 backdrop-blur-md border border-sky-500/30 rounded-2xl px-6 py-4 shadow-2xl pointer-events-auto max-w-2xl"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="inline-block bg-slate-950/90 backdrop-blur-md border border-sky-500/30 rounded-xl px-5 py-2.5 shadow-2xl pointer-events-auto max-w-xl"
           >
-            <h2 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-100 to-emerald-300 tracking-wider">
+            <h2 className="text-sm sm:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-100 to-emerald-300 tracking-wider">
               {currentScene.title}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-200 mt-1 font-medium leading-relaxed">
+            <p className="text-[11px] sm:text-xs text-slate-200 mt-0.5 font-medium leading-normal">
               {currentScene.subtitle}
             </p>
           </motion.div>

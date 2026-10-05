@@ -78,9 +78,9 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
               isTrapped || isFailed ? 'bg-rose-600' : isRerouting ? 'bg-amber-500' : 'bg-emerald-500'
             }`}></span>
           </span>
-          <div>
-            <div className="text-xs font-black tracking-wider uppercase text-slate-100 flex items-center gap-1.5">
-              <span>
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-black tracking-wider uppercase text-slate-100 flex items-center gap-1.5 truncate">
+              <span className="truncate">
                 {isTrapped
                   ? (language === 'bn' ? '⚠️ উদ্ধারকারী অবরুদ্ধ' : '⚠️ AGENT TRAPPED')
                   : isFailed
@@ -90,14 +90,14 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
                   : isPaused
                   ? (language === 'bn' ? 'সিমুলেশন স্থগিত' : 'SIMULATION PAUSED')
                   : isTrappedRun
-                  ? (language === 'bn' ? 'উদ্ধার প্রচেষ্টা চলছে (সীমাবদ্ধ পথ)' : 'SIMULATION ACTIVE — BEST-EFFORT ATTEMPT')
+                  ? (language === 'bn' ? 'উদ্ধার প্রচেষ্টা (সীমাবদ্ধ পথ)' : 'BEST-EFFORT ATTEMPT')
                   : (language === 'bn' ? 'সিমুলেশন চলছে' : 'SIMULATION ACTIVE')}
               </span>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono">
+            <div className="text-[10px] text-slate-400 font-mono truncate">
               {isTrappedRun 
-                ? `${language === 'bn' ? 'সর্বশেষ অবস্থান:' : 'Current:'} ${lastPositionId} • ${language === 'bn' ? 'উন্মুক্ত নির্গমন:' : 'Exits:'} 0`
-                : `${language === 'bn' ? 'গন্তব্য দ্বার:' : 'Target:'} ${routeResult.destinationExitId || 'NONE'} • ${language === 'bn' ? 'অতিক্রম:' : 'Traversed:'} ${traversedCount}`}
+                ? `${language === 'bn' ? 'অবস্থান:' : 'Pos:'} ${lastPositionId} • ${language === 'bn' ? 'নির্গমন:' : 'Exits:'} 0`
+                : `${language === 'bn' ? 'দ্বার:' : 'Exit:'} ${routeResult.destinationExitId || 'NONE'} • ${language === 'bn' ? 'ধাপ:' : 'Steps:'} ${traversedCount}`}
             </div>
           </div>
         </div>

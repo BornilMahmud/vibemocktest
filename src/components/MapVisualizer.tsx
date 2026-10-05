@@ -399,27 +399,30 @@ export const MapVisualizer: React.FC<MapVisualizerProps> = ({
                     </text>
                   )}
 
-                  {/* Node Title & Type Labels */}
+                  {/* Compact Backed Node Label to Prevent Overlapping */}
+                  <rect
+                    x={-18}
+                    y={r + 4}
+                    width={36}
+                    height={15}
+                    rx={4}
+                    fill="#020617"
+                    fillOpacity={0.88}
+                    stroke={isBlocked ? '#f43f5e' : isStart ? '#38bdf8' : isDestination ? '#34d399' : '#334155'}
+                    strokeWidth={0.75}
+                    className="pointer-events-none"
+                  />
                   <text
                     x={0}
-                    y={r + 14}
+                    y={r + 15}
                     textAnchor="middle"
                     fill={isBlocked ? '#f43f5e' : isStart ? '#38bdf8' : isDestination ? '#34d399' : '#cbd5e1'}
-                    fontSize={11}
+                    fontSize={10}
                     fontWeight="bold"
-                    className="pointer-events-none drop-shadow-md"
+                    fontFamily="monospace"
+                    className="pointer-events-none"
                   >
                     {node.id}
-                  </text>
-                  <text
-                    x={0}
-                    y={r + 26}
-                    textAnchor="middle"
-                    fill="#64748b"
-                    fontSize={9}
-                    className="pointer-events-none uppercase tracking-wider"
-                  >
-                    {node.type}
                   </text>
                 </g>
               );
