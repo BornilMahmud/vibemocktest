@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Volume2, VolumeX, RotateCcw, AlertTriangle, Radio, Box, Map } from 'lucide-react';
+import { ShieldAlert, Volume2, VolumeX, RotateCcw, AlertTriangle, Radio, Box, Map, Film } from 'lucide-react';
 import { translations, type Language } from '../i18n/translations';
 import { getSoundEnabled, isSirenActive, playClickSound, setSoundEnabled, toggleSiren } from '../lib/audio';
 
@@ -10,6 +10,7 @@ interface HeaderProps {
   routeStatus: string;
   viewMode: '3d' | '2d';
   onToggleViewMode: (mode: '3d' | '2d') => void;
+  onOpenReel?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   routeStatus,
   viewMode,
   onToggleViewMode,
+  onOpenReel,
 }) => {
   const t = translations[language];
   const [soundOn, setSoundOn] = React.useState(getSoundEnabled());
@@ -163,6 +165,21 @@ export const Header: React.FC<HeaderProps> = ({
             বাংলা
           </button>
         </div>
+
+        {/* Cinematic Product Reel Button */}
+        {onOpenReel && (
+          <button
+            onClick={() => {
+              playClickSound();
+              onOpenReel();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-sky-600/90 to-cyan-500/90 hover:from-sky-500 hover:to-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all border border-cyan-400/40"
+            title="Launch 90-Second Cinematic Product Reel"
+          >
+            <Film className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">{language === 'bn' ? 'প্রডাক্ট রিল' : 'Product Reel'}</span>
+          </button>
+        )}
 
         {/* Reset State */}
         <button

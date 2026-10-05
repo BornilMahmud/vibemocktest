@@ -8,6 +8,7 @@ import { RouteIntel } from './components/RouteIntel';
 import { Legend } from './components/Legend';
 import { ImportModal } from './components/ImportModal';
 import { InitialLoader } from './components/InitialLoader';
+import { CinematicProductReel } from './components/CinematicProductReel';
 import type { FloorplanData, HazardState, GraphNode } from './types/graph';
 import type { SimulationPhase, CameraViewMode } from './types/simulation';
 import { CONTEST_BENCHMARK_PRESET } from './lib/presets';
@@ -39,6 +40,7 @@ export function App() {
 
   const [isImportModalOpen, setIsImportModalOpen] = React.useState(false);
   const [isInitialLoading, setIsInitialLoading] = React.useState(true);
+  const [isProductReelOpen, setIsProductReelOpen] = React.useState(false);
 
   // -------------------------------------------------------------
   // CINEMATIC SIMULATION STATE MACHINE
@@ -559,6 +561,7 @@ export function App() {
           routeStatus={routeResult.status}
           viewMode={viewMode}
           onToggleViewMode={setViewMode}
+          onOpenReel={() => setIsProductReelOpen(true)}
         />
       )}
 
@@ -683,6 +686,21 @@ export function App() {
           language={language}
         />
       )}
+
+      {/* 6. CINEMATIC PRODUCT REEL (90-SEC COMPETITION PRESENTATION) */}
+      <CinematicProductReel
+        isOpen={isProductReelOpen}
+        onClose={() => setIsProductReelOpen(false)}
+        onSetFloorplan={setFloorplan}
+        onSetStartNode={setStartNodeId}
+        onSetHazards={setHazards}
+        onSetLanguage={setLanguage}
+        onSetSimulationPhase={setSimulationPhase}
+        onSetCameraMode={setCameraMode}
+        onStartSimulation={handleStartSimulation}
+        onExitSimulation={handleExitSimulation}
+        currentLanguage={language}
+      />
     </div>
   );
 }
