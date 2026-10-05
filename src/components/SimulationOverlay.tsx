@@ -211,139 +211,148 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
         )}
       </AnimatePresence>
 
-      {/* 3. RESULT MODALS (SUCCESS / FAILURE) */}
+      {/* 3. RESULT MODALS (SUCCESS / FAILURE) WITH FULL BACKDROP */}
       <AnimatePresence>
-        {/* SUCCESS MODAL */}
-        {isSuccess && (
+        {(isSuccess || isFailed) && (
           <motion.div
-            initial={{ scale: 0.85, opacity: 0, y: 30 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.85, opacity: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="self-center bg-slate-900/95 border border-emerald-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl w-full max-w-md pointer-events-auto flex flex-col items-center text-center gap-4 border-t-4 border-t-emerald-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md pointer-events-auto"
           >
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/20">
-              <ShieldCheck className="w-9 h-9" />
-            </div>
-
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/40">
-                {language === 'bn' ? 'উদ্ধার সফল' : 'MISSION ACCOMPLISHED'}
-              </span>
-              <h2 className="text-2xl font-black text-slate-100 mt-2 tracking-wide">
-                {language === 'bn' ? 'নিরাপদে বহির্গমন সম্পন্ন!' : 'ESCAPE SUCCESSFUL'}
-              </h2>
-              <p className="text-xs text-slate-300 mt-1">
-                {language === 'bn'
-                  ? 'উদ্ধারকারী নিরাপদে নির্ধারিত জরুরি নির্গমন দ্বারে পৌঁছেছেন।'
-                  : 'Evacuee safely reached designated open emergency exit gate.'}
-              </p>
-            </div>
-
-            {/* Performance Metrics Card */}
-            <div className="grid grid-cols-3 gap-2 w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3">
-              <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 uppercase font-mono">{language === 'bn' ? 'নির্গমন দ্বার' : 'Exit Gate'}</span>
-                <span className="text-base font-black text-emerald-400 font-mono">{routeResult.destinationExitId}</span>
-              </div>
-              <div className="flex flex-col border-x border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase font-mono">{language === 'bn' ? 'মোট খরচ' : 'Total Cost'}</span>
-                <span className="text-base font-black text-cyan-400 font-mono">{routeResult.totalCost}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 uppercase font-mono">{language === 'bn' ? 'অতিক্রম' : 'Traversed'}</span>
-                <span className="text-base font-black text-slate-200 font-mono">{traversedCount}</span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 w-full mt-2">
-              <button
-                onClick={() => {
-                  playClickSound();
-                  onRestart();
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-1.5"
+            {/* SUCCESS MODAL */}
+            {isSuccess && (
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0, y: 30 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.85, opacity: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="bg-slate-900/95 border border-emerald-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl w-full max-w-md flex flex-col items-center text-center gap-4 border-t-4 border-t-emerald-400"
               >
-                <RotateCcw className="w-4 h-4" />
-                <span>{language === 'bn' ? 'পুনরায় চালান' : 'Run Again'}</span>
-              </button>
-              <button
-                onClick={() => {
-                  playClickSound();
-                  onExitSimulation();
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors"
+                <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/20">
+                  <ShieldCheck className="w-9 h-9" />
+                </div>
+
+                <div>
+                  <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/40">
+                    {language === 'bn' ? 'উদ্ধার সফল' : 'MISSION ACCOMPLISHED'}
+                  </span>
+                  <h2 className="text-2xl font-black text-slate-100 mt-2 tracking-wide">
+                    {language === 'bn' ? 'নিরাপদে বহির্গমন সম্পন্ন!' : 'ESCAPE SUCCESSFUL'}
+                  </h2>
+                  <p className="text-xs text-slate-300 mt-1">
+                    {language === 'bn'
+                      ? 'উদ্ধারকারী নিরাপদে নির্ধারিত জরুরি নির্গমন দ্বারে পৌঁছেছেন।'
+                      : 'Evacuee safely reached designated open emergency exit gate.'}
+                  </p>
+                </div>
+
+                {/* Performance Metrics Card */}
+                <div className="grid grid-cols-3 gap-2 w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-400 uppercase font-mono">{language === 'bn' ? 'নির্গমন দ্বার' : 'Exit Gate'}</span>
+                    <span className="text-base font-black text-emerald-400 font-mono">{routeResult.destinationExitId}</span>
+                  </div>
+                  <div className="flex flex-col border-x border-slate-800">
+                    <span className="text-[10px] text-slate-400 uppercase font-mono">{language === 'bn' ? 'মোট খরচ' : 'Total Cost'}</span>
+                    <span className="text-base font-black text-cyan-400 font-mono">{routeResult.totalCost}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-400 uppercase font-mono">{language === 'bn' ? 'অতিক্রম' : 'Traversed'}</span>
+                    <span className="text-base font-black text-slate-200 font-mono">{traversedCount}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 w-full mt-2">
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      onRestart();
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>{language === 'bn' ? 'পুনরায় চালান' : 'Run Again'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      onExitSimulation();
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors"
+                  >
+                    {language === 'bn' ? 'কমান্ড সেন্টার' : 'Command Deck'}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* FAILURE / TRAPPED MODAL */}
+            {isFailed && (
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0, y: 30 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.85, opacity: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="bg-slate-900/95 border border-rose-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl w-full max-w-md flex flex-col items-center text-center gap-4 border-t-4 border-t-rose-500"
               >
-                {language === 'bn' ? 'কমান্ড সেন্টার' : 'Command Deck'}
-              </button>
-            </div>
-          </motion.div>
-        )}
+                <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 shadow-xl shadow-rose-500/20">
+                  <AlertOctagon className="w-9 h-9 animate-pulse" />
+                </div>
 
-        {/* FAILURE / TRAPPED MODAL */}
-        {isFailed && (
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0, y: 30 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.85, opacity: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="self-center bg-slate-900/95 border border-rose-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl w-full max-w-md pointer-events-auto flex flex-col items-center text-center gap-4 border-t-4 border-t-rose-500"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 shadow-xl shadow-rose-500/20">
-              <AlertOctagon className="w-9 h-9 animate-pulse" />
-            </div>
+                <div>
+                  <span className="text-[11px] font-mono uppercase tracking-widest text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-950/80 border border-rose-800/40">
+                    {language === 'bn' ? 'জরুরি পরিস্থিতি' : 'EVACUATION FAILED'}
+                  </span>
+                  <h2 className="text-2xl font-black text-slate-100 mt-2 tracking-wide">
+                    {language === 'bn' ? 'কোনো নিরাপদ বের হওয়ার পথ নেই' : 'NO SAFE EXIT AVAILABLE'}
+                  </h2>
+                  <p className="text-xs text-rose-200/90 mt-1 leading-relaxed">
+                    {language === 'bn'
+                      ? 'বর্তমান ঝুঁকির অবস্থায় কোনো উন্মুক্ত নির্গমনপথে পৌঁছানো সম্ভব হয়নি।'
+                      : 'The evacuation attempt could not reach an accessible exit under the current hazard conditions.'}
+                  </p>
+                </div>
 
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-widest text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-950/80 border border-rose-800/40">
-                {language === 'bn' ? 'জরুরি পরিস্থিতি' : 'EVACUATION FAILED'}
-              </span>
-              <h2 className="text-2xl font-black text-slate-100 mt-2 tracking-wide">
-                {language === 'bn' ? 'কোনো নিরাপদ বের হওয়ার পথ নেই' : 'NO SAFE EXIT AVAILABLE'}
-              </h2>
-              <p className="text-xs text-rose-200/90 mt-1 leading-relaxed">
-                {language === 'bn'
-                  ? 'বর্তমান ঝুঁকির অবস্থায় কোনো উন্মুক্ত নির্গমনপথে পৌঁছানো সম্ভব হয়নি।'
-                  : 'The evacuation attempt could not reach an accessible exit under the current hazard conditions.'}
-              </p>
-            </div>
+                {/* Failure Telemetry Card */}
+                <div className="grid grid-cols-2 gap-2 w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 font-mono">
+                  <div className="flex flex-col text-left pl-2">
+                    <span className="text-[10px] text-slate-400 uppercase">{language === 'bn' ? 'সর্বশেষ অবস্থান' : 'LAST POSITION'}</span>
+                    <span className="text-sm font-black text-slate-200">
+                      {lastPositionId} {lastPositionName ? `(${lastPositionName})` : ''}
+                    </span>
+                  </div>
+                  <div className="flex flex-col text-right pr-2 border-l border-slate-800">
+                    <span className="text-[10px] text-slate-400 uppercase">{language === 'bn' ? 'উন্মুক্ত নির্গমন দ্বার' : 'EXITS AVAILABLE'}</span>
+                    <span className="text-sm font-black text-rose-400">0</span>
+                  </div>
+                </div>
 
-            {/* Failure Telemetry Card */}
-            <div className="grid grid-cols-2 gap-2 w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 font-mono">
-              <div className="flex flex-col text-left pl-2">
-                <span className="text-[10px] text-slate-400 uppercase">{language === 'bn' ? 'সর্বশেষ অবস্থান' : 'LAST POSITION'}</span>
-                <span className="text-sm font-black text-slate-200">
-                  {lastPositionId} {lastPositionName ? `(${lastPositionName})` : ''}
-                </span>
-              </div>
-              <div className="flex flex-col text-right pr-2 border-l border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase">{language === 'bn' ? 'উন্মুক্ত নির্গমন দ্বার' : 'EXITS AVAILABLE'}</span>
-                <span className="text-sm font-black text-rose-400">0</span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 w-full mt-2">
-              <button
-                onClick={() => {
-                  playClickSound();
-                  onRestart();
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-1.5"
-              >
-                <RotateCcw className="w-4 h-4" />
-                <span>{language === 'bn' ? 'আবার চেষ্টা করুন' : 'Try Again'}</span>
-              </button>
-              <button
-                onClick={() => {
-                  playClickSound();
-                  onExitSimulation();
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors"
-              >
-                {language === 'bn' ? 'কমান্ড সেন্টার' : 'Command Deck'}
-              </button>
-            </div>
+                {/* Actions */}
+                <div className="flex items-center gap-3 w-full mt-2">
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      onRestart();
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>{language === 'bn' ? 'আবার চেষ্টা করুন' : 'Try Again'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      onExitSimulation();
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors"
+                  >
+                    {language === 'bn' ? 'কমান্ড সেন্টার' : 'Command Deck'}
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

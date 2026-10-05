@@ -154,6 +154,8 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
 
   const isFailureMode = simulationPhase === 'TRAPPED' || simulationPhase === 'FAILED';
   const isSuccessMode = simulationPhase === 'SUCCESS';
+  const isModalActive = simulationPhase === 'SUCCESS' || simulationPhase === 'FAILED';
+  const showLabels = !isModalActive;
 
   return (
     <div className="w-full h-full relative select-none">
@@ -231,6 +233,7 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
               isBlocked={isBlocked}
               isPartOfRoute={isPartOfRoute}
               onToggle={() => onToggleEdgeHazard(edge.id)}
+              showLabels={showLabels}
             />
           );
         })}
@@ -275,6 +278,7 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
                 language={language}
                 onSelect={() => onSelectStartNode(node.id)}
                 onContextMenu={() => onToggleNodeHazard(node.id)}
+                showLabels={showLabels}
               />
             );
           } else if (node.type === 'exit') {
@@ -287,6 +291,7 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
                 isDestination={isDestination}
                 language={language}
                 onToggle={() => onToggleExitClosed(node.id)}
+                showLabels={showLabels}
               />
             );
           } else {
@@ -301,6 +306,7 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
                 language={language}
                 onSelect={() => onSelectStartNode(node.id)}
                 onContextMenu={() => onToggleNodeHazard(node.id)}
+                showLabels={showLabels}
               />
             );
           }
