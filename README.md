@@ -26,21 +26,27 @@ Simulation State Machine
    └── 3D Architectural World (Low-Poly Scene, Evacuee Avatar, Dynamic Lighting)
 ```
 
-### 🌟 6 Pillars of Technical Excellence
+### 🌟 7 Pillars of Technical Excellence
 1. **Algorithm Impossible to Doubt**: Fully generalized Dijkstra with priority queue ($O((V+E) \log V)$) operating on dynamic graph topologies (2–60 nodes, 1–150 edges) with zero pre-baked or hard-coded assumptions.
 2. **Exact Contest Tie-Breaking**:
    - Lowest total path cost wins.
    - Equal cost between exits $\rightarrow$ lexicographically smallest exit ID (`'E1'` before `'E2'`).
    - Equal cost to same exit $\rightarrow$ lexicographically smallest node-ID sequence.
-3. **Route Intelligence & Explainability Engine ("Why This Route?")**:
+3. **Trapped / Failure Simulation Experience (Cinematic Best-Effort Traversal)**:
+   - **Two Distinct Outcomes**:
+     - *Success*: Agent smoothly navigates along the calculated route $\rightarrow$ exit glows brightly $\rightarrow$ calm atmosphere $\rightarrow$ NO SIREN $\rightarrow$ victory fanfare.
+     - *Failure*: When no open exit is reachable, the simulation button remains enabled ("Simulate Escape Attempt"). The agent deterministically traverses accessible corridors up to the furthest safe reachable node (dead end). Upon arrival, character stops $\rightarrow$ route guidance fades $\rightarrow$ siren starts $\rightarrow$ rapid red emergency lights pulse (~180ms) $\rightarrow$ camera pushes in $\rightarrow$ cinematic "EVACUATION FAILED" overlay with Last Position and Exits Available: 0.
+   - **Strict Siren Rule**: The simulation begins calmly and professionally. The siren is NEVER triggered at start or during normal evacuation; it sounds ONLY when a trapped/failure condition is reached.
+   - **Dynamic In-Flight Rerouting**: If a newly injected hazard blocks the active path, the system immediately recalculates. If an alternative route exists, the agent redirects smoothly; if no escape exists, the agent continues safely to the furthest accessible point before entering the trapped sequence.
+4. **Route Intelligence & Explainability Engine ("Why This Route?")**:
    - Step-by-step corridor cost breakdown (`R1 → C1: +2`, `C1 → C3: +4`, `C3 → C4: +3`, `C4 → E2: +2`, Total: `11`).
    - Evaluation matrix of all candidate exits (`E1: Sealed / Blocked`, `E2: Optimal (Cost 11)`).
    - Clear decision rationale explaining why an alternative exit was chosen.
-4. **Live Operational System State Machine**:
-   - Formal states: `SYSTEM ARMED` $\rightarrow$ `ROUTE SECURED` $\rightarrow$ `MONITORING HAZARDS` $\rightarrow$ `SIMULATING` $\rightarrow$ `REROUTING` $\rightarrow$ `SAFE EXIT REACHED` / `NO SAFE ROUTE`.
-5. **Real-Time In-Flight Rerouting**:
+5. **Live Operational System State Machine**:
+   - Formal states: `IDLE` $\rightarrow$ `PREPARING` $\rightarrow$ `RUNNING` $\rightarrow$ `REROUTING` $\rightarrow$ `TRAPPED` $\rightarrow$ `SUCCESS` / `FAILED`.
+6. **Real-Time In-Flight Rerouting**:
    - Dynamic hazard injection during evacuation transit immediately halts the agent safely, triggers an emergency reroute calculation, updates the luminous path, and seamlessly redirects the agent.
-6. **High-Performance 3D Scene Architecture**:
+7. **High-Performance 3D Scene Architecture**:
    - Decoupled continuous 60fps Three.js animation loops (`useFrame` with refs) from React state rerenders.
    - Lightweight procedural geometry, reusable materials, minimal particle overhead, and responsive isometric camera choreography.
 

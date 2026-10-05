@@ -31,6 +31,9 @@ interface SimulationOverlayProps {
   traversedCount: number;
   rerouteNotice: string | null;
   language: Language;
+  lastPositionId?: string;
+  lastPositionName?: string;
+  isTrappedRun?: boolean;
 }
 
 export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
@@ -46,9 +49,13 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
   traversedCount,
   rerouteNotice,
   language,
+  lastPositionId = 'R1',
+  lastPositionName,
+  isTrappedRun = false,
 }) => {
   const isPaused = phase === 'PAUSED';
   const isRerouting = phase === 'REROUTING';
+  const isTrapped = phase === 'TRAPPED';
   const isSuccess = phase === 'SUCCESS';
   const isFailed = phase === 'FAILED';
 
@@ -65,18 +72,32 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
         <div className="flex items-center gap-2.5">
           <span className="relative flex h-3 w-3">
             <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-              isRerouting ? 'bg-amber-400' : isFailed ? 'bg-rose-500' : 'bg-emerald-400'
+              isTrapped || isFailed ? 'bg-rose-500' : isRerouting ? 'bg-amber-400' : 'bg-emerald-400'
             }`}></span>
             <span className={`relative inline-flex rounded-full h-3 w-3 ${
-              isRerouting ? 'bg-amber-500' : isFailed ? 'bg-rose-600' : 'bg-emerald-500'
+              isTrapped || isFailed ? 'bg-rose-600' : isRerouting ? 'bg-amber-500' : 'bg-emerald-500'
             }`}></span>
           </span>
           <div>
             <div className="text-xs font-black tracking-wider uppercase text-slate-100 flex items-center gap-1.5">
-              <span>{isRerouting ? (language === 'bn' ? 'দিক পরিবর্তন হচ্ছে...' : 'REROUTING VECTOR') : isPaused ? (language === 'bn' ? 'সিমুলেশন স্থগিত' : 'SIMULATION PAUSED') : (language === 'bn' ? 'সিমুলেশন চলছে' : 'SIMULATION ACTIVE')}</span>
+              <span>
+                {isTrapped
+                  ? (language === 'bn' ? '⚠️ উদ্ধারকারী অবরুদ্ধ' : '⚠️ AGENT TRAPPED')
+                  : isFailed
+                  ? (language === 'bn' ? '✕ কোনো নিরাপদ রুট নেই' : '✕ NO SAFE ROUTE AVAILABLE')
+                  : isRerouting
+                  ? (language === 'bn' ? 'দিক পরিবর্তন হচ্ছে...' : 'REROUTING VECTOR')
+                  : isPaused
+                  ? (language === 'bn' ? 'সিমুলেশন স্থগিত' : 'SIMULATION PAUSED')
+                  : isTrappedRun
+                  ? (language === 'bn' ? 'উদ্ধার প্রচেষ্টা চলছে (সীমাবদ্ধ পথ)' : 'SIMULATION ACTIVE — BEST-EFFORT ATTEMPT')
+                  : (language === 'bn' ? 'সিমুলেশন চলছে' : 'SIMULATION ACTIVE')}
+              </span>
             </div>
             <div className="text-[10px] text-slate-400 font-mono">
-              {language === 'bn' ? 'গন্তব্য দ্বার:' : 'Target:'} {routeResult.destinationExitId || 'NONE'} • {language === 'bn' ? 'অতিক্রম:' : 'Traversed:'} {traversedCount}
+              {isTrappedRun 
+                ? `${language === 'bn' ? 'সর্বশেষ অবস্থান:' : 'Current:'} ${lastPositionId} • ${language === 'bn' ? 'উন্মুক্ত নির্গমন:' : 'Exits:'} 0`
+                : `${language === 'bn' ? 'গন্তব্য দ্বার:' : 'Target:'} ${routeResult.destinationExitId || 'NONE'} • ${language === 'bn' ? 'অতিক্রম:' : 'Traversed:'} ${traversedCount}`}
             </div>
           </div>
         </div>
@@ -154,7 +175,7 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
         </div>
       </motion.div>
 
-      {/* 2. DYNAMIC REROUTE NOTIFICATION BANNER */}
+      {/* 2. DYNAMIC NOTIFICATIONS (REROUTING OR TRAPPED REALIZATION) */}
       <AnimatePresence>
         {rerouteNotice && (
           <motion.div
@@ -166,6 +187,25 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
             <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
             <div className="text-sm font-bold tracking-wide">
               {rerouteNotice}
+            </div>
+          </motion.div>
+        )}
+
+        {isTrapped && (
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0, y: -10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.85, opacity: 0 }}
+            className="self-center bg-rose-950/95 border-2 border-rose-500 text-rose-200 px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3.5 pointer-events-auto max-w-lg"
+          >
+            <AlertOctagon className="w-7 h-7 text-rose-400 animate-pulse flex-shrink-0" />
+            <div>
+              <div className="text-sm font-black tracking-wide text-rose-300">
+                {language === 'bn' ? '⚠️ পথ অবরুদ্ধ — সামনে কোনো নিরাপদ নির্গমন নেই' : '⚠️ ROUTE LOST — NO SAFE EXIT AHEAD'}
+              </div>
+              <div className="text-[11px] text-rose-200/80 mt-0.5">
+                {language === 'bn' ? 'উদ্ধারকারী সর্বোচ্চ সম্ভাব্য অবস্থানে এসে থমকে গেছেন।' : 'Evacuation agent reached the furthest safe point. All forward exits are sealed.'}
+              </div>
             </div>
           </motion.div>
         )}
@@ -241,7 +281,7 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
           </motion.div>
         )}
 
-        {/* FAILURE MODAL */}
+        {/* FAILURE / TRAPPED MODAL */}
         {isFailed && (
           <motion.div
             initial={{ scale: 0.85, opacity: 0, y: 30 }}
@@ -251,21 +291,35 @@ export const SimulationOverlay: React.FC<SimulationOverlayProps> = ({
             className="self-center bg-slate-900/95 border border-rose-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl w-full max-w-md pointer-events-auto flex flex-col items-center text-center gap-4 border-t-4 border-t-rose-500"
           >
             <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 shadow-xl shadow-rose-500/20">
-              <AlertOctagon className="w-9 h-9" />
+              <AlertOctagon className="w-9 h-9 animate-pulse" />
             </div>
 
             <div>
               <span className="text-[11px] font-mono uppercase tracking-widest text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-950/80 border border-rose-800/40">
-                {language === 'bn' ? 'জরুরি পরিস্থিতি' : 'CRITICAL LOCKOUT'}
+                {language === 'bn' ? 'জরুরি পরিস্থিতি' : 'EVACUATION FAILED'}
               </span>
               <h2 className="text-2xl font-black text-slate-100 mt-2 tracking-wide">
-                {language === 'bn' ? 'বহির্গমন পথ অবরুদ্ধ!' : 'EVACUATION FAILED'}
+                {language === 'bn' ? 'কোনো নিরাপদ বের হওয়ার পথ নেই' : 'NO SAFE EXIT AVAILABLE'}
               </h2>
-              <p className="text-xs text-rose-200/90 mt-1">
+              <p className="text-xs text-rose-200/90 mt-1 leading-relaxed">
                 {language === 'bn'
-                  ? 'বর্তমান প্রতিবন্ধকতার কারণে কোনো নিরাপদ রুট নির্ণয় করা সম্ভব নয়।'
-                  : 'The current hazard configuration does not permit a valid route.'}
+                  ? 'বর্তমান ঝুঁকির অবস্থায় কোনো উন্মুক্ত নির্গমনপথে পৌঁছানো সম্ভব হয়নি।'
+                  : 'The evacuation attempt could not reach an accessible exit under the current hazard conditions.'}
               </p>
+            </div>
+
+            {/* Failure Telemetry Card */}
+            <div className="grid grid-cols-2 gap-2 w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 font-mono">
+              <div className="flex flex-col text-left pl-2">
+                <span className="text-[10px] text-slate-400 uppercase">{language === 'bn' ? 'সর্বশেষ অবস্থান' : 'LAST POSITION'}</span>
+                <span className="text-sm font-black text-slate-200">
+                  {lastPositionId} {lastPositionName ? `(${lastPositionName})` : ''}
+                </span>
+              </div>
+              <div className="flex flex-col text-right pr-2 border-l border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase">{language === 'bn' ? 'উন্মুক্ত নির্গমন দ্বার' : 'EXITS AVAILABLE'}</span>
+                <span className="text-sm font-black text-rose-400">0</span>
+              </div>
             </div>
 
             {/* Actions */}

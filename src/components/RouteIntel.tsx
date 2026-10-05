@@ -323,85 +323,93 @@ export const RouteIntel: React.FC<RouteIntelProps> = ({
         </div>
       )}
 
-      {/* 5. EVACUATION SIMULATOR CONTROLS */}
-      {isFound && (
-        <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 flex flex-col gap-3">
-          <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
-            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Play className="w-3 h-3 text-emerald-400" />
-              {t.simulation}
-            </span>
-            {/* Speed toggle pills */}
-            <div className="flex items-center gap-1 text-[10px] font-mono">
-              {[1, 2, 4].map(spd => (
-                <button
-                  key={spd}
-                  onClick={() => onChangeSpeed(spd)}
-                  className={`px-1.5 py-0.5 rounded border transition-colors ${
-                    simulationSpeed === spd
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold'
-                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-                  }`}
-                >
-                  {spd}x
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                playClickSound();
-                onToggleSimulate();
-              }}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                isSimulating
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30'
-                  : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-md shadow-emerald-500/30'
-              }`}
-            >
-              {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-              <span>{isSimulating ? t.pauseSimulation : t.playSimulation}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                playClickSound();
-                onStepSimulate();
-              }}
-              className="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-500/50 text-slate-300 hover:text-white transition-colors"
-              title={t.stepForward}
-            >
-              <SkipForward className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => {
-                playClickSound();
-                onResetSimulate();
-              }}
-              className="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white transition-colors"
-              title={t.resetSimulation}
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Simulation Progress Status */}
-          <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300 flex items-center justify-between">
-            <span>
-              {simulationStepIndex === routeResult.path.length - 1
-                ? t.simSafe
-                : t.simEvacuating}
-            </span>
-            <span className="font-mono text-cyan-400 font-bold">
-              {simulationStepIndex + 1} / {routeResult.path.length}
-            </span>
+      {/* 5. EVACUATION SIMULATOR CONTROLS (Always accessible) */}
+      <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 flex flex-col gap-3">
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+          <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Play className="w-3 h-3 text-emerald-400" />
+            {t.simulation}
+          </span>
+          {/* Speed toggle pills */}
+          <div className="flex items-center gap-1 text-[10px] font-mono">
+            {[1, 2, 4].map(spd => (
+              <button
+                key={spd}
+                onClick={() => onChangeSpeed(spd)}
+                className={`px-1.5 py-0.5 rounded border transition-colors ${
+                  simulationSpeed === spd
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold'
+                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                }`}
+              >
+                {spd}x
+              </button>
+            ))}
           </div>
         </div>
-      )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              playClickSound();
+              onToggleSimulate();
+            }}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+              isSimulating
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30'
+                : isFound
+                ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-md shadow-emerald-500/30'
+                : 'bg-amber-500/90 text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20'
+            }`}
+          >
+            {isSimulating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            <span>{isSimulating ? t.pauseSimulation : isFound ? t.playSimulation : t.simulateTrapped}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              playClickSound();
+              onStepSimulate();
+            }}
+            className="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-500/50 text-slate-300 hover:text-white transition-colors"
+            title={t.stepForward}
+          >
+            <SkipForward className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => {
+              playClickSound();
+              onResetSimulate();
+            }}
+            className="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white transition-colors"
+            title={t.resetSimulation}
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Simulation Progress Status */}
+        <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px] text-slate-300 flex items-center justify-between">
+          <span>
+            {simulationPhase === 'TRAPPED'
+              ? t.trappedStatus
+              : simulationPhase === 'FAILED'
+              ? t.sysStateFailed
+              : simulationStepIndex === (routeResult.path.length || 1) - 1 && isFound
+              ? t.simSafe
+              : isSimulating
+              ? t.simEvacuating
+              : isFound
+              ? t.sysStateRouteFound
+              : t.trappedDesc}
+          </span>
+          <span className="font-mono text-cyan-400 font-bold">
+            {simulationStepIndex + 1} / {Math.max(1, routeResult.path.length)}
+          </span>
+        </div>
+      </div>
 
       {/* 6. STEP-BY-STEP TURN-BY-TURN GUIDANCE */}
       {isFound && routeResult.steps.length > 0 && (

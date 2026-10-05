@@ -12,6 +12,7 @@ import type { FloorplanData, HazardState, GraphNode } from './types/graph';
 import type { SimulationPhase, CameraViewMode } from './types/simulation';
 import { CONTEST_BENCHMARK_PRESET } from './lib/presets';
 import { computeOptimalRoute } from './lib/dijkstra';
+import { findBestEffortPath } from './lib/traversal';
 import type { Language } from './i18n/translations';
 import { 
   playHazardAlertSound, 
@@ -48,6 +49,17 @@ export function App() {
   const [simulationSpeed, setSimulationSpeed] = React.useState<number>(1);
   const [traversedCount, setTraversedCount] = React.useState<number>(0);
   const [rerouteNotice, setRerouteNotice] = React.useState<string | null>(null);
+
+  // Active Simulation Path (Supports optimal route or best-effort safe trapped traversal)
+  const [activeSimulationPath, setActiveSimulationPath] = React.useState<string[]>([]);
+  const [isTrappedRun, setIsTrappedRun] = React.useState<boolean>(false);
+  const [lastPositionId, setLastPositionId] = React.useState<string>('R1');
+  const trappedTimersRef = React.useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearTrappedTimers = React.useCallback(() => {
+    trappedTimersRef.current.forEach(t => clearTimeout(t));
+    trappedTimersRef.current = [];
+  }, []);
 
   // Agent Waypoint Motion State
   const [currentWaypointIdx, setCurrentWaypointIdx] = React.useState<number>(0);
@@ -86,22 +98,25 @@ export function App() {
 
   // Calculate current agent 3D world position and rotation
   const { agentPosition, agentRotationY, isAgentWalking } = React.useMemo(() => {
-    if (routeResult.status !== 'OPTIMAL_ROUTE_FOUND' || routeResult.path.length === 0) {
+    const currentPath = isCinematicMode && activeSimulationPath.length > 0 
+      ? activeSimulationPath 
+      : (routeResult.status === 'OPTIMAL_ROUTE_FOUND' ? routeResult.path : []);
+
+    if (currentPath.length === 0) {
       const startN = nodeMap.get(startNodeId);
       const pos = startN ? to3D(startN) : [0, 0, 0];
       return { agentPosition: [pos[0], 0.1, pos[2]] as [number, number, number], agentRotationY: 0, isAgentWalking: false };
     }
 
-    const path = routeResult.path;
-    const idx = Math.min(currentWaypointIdx, path.length - 1);
-    const currNode = nodeMap.get(path[idx]);
+    const idx = Math.min(currentWaypointIdx, currentPath.length - 1);
+    const currNode = nodeMap.get(currentPath[idx]);
 
     if (!currNode) {
       return { agentPosition: [0, 0.1, 0] as [number, number, number], agentRotationY: 0, isAgentWalking: false };
     }
 
-    // If at final exit waypoint or not walking between segments
-    if (idx >= path.length - 1) {
+    // If at final waypoint or not walking between segments
+    if (idx >= currentPath.length - 1) {
       const p = to3D(currNode);
       return {
         agentPosition: [p[0], 0.1, p[2]] as [number, number, number],
@@ -110,8 +125,8 @@ export function App() {
       };
     }
 
-    // Interpolate between path[idx] and path[idx + 1]
-    const nextNode = nodeMap.get(path[idx + 1]);
+    // Interpolate between currentPath[idx] and currentPath[idx + 1]
+    const nextNode = nodeMap.get(currentPath[idx + 1]);
     if (!nextNode) {
       const p = to3D(currNode);
       return { agentPosition: [p[0], 0.1, p[2]] as [number, number, number], agentRotationY: 0, isAgentWalking: false };
@@ -131,7 +146,7 @@ export function App() {
       agentRotationY: rotY,
       isAgentWalking: isWalking,
     };
-  }, [routeResult, currentWaypointIdx, segmentProgress, simulationPhase, nodeMap, startNodeId, to3D]);
+  }, [isCinematicMode, activeSimulationPath, routeResult, currentWaypointIdx, segmentProgress, simulationPhase, nodeMap, startNodeId, to3D]);
 
   // -------------------------------------------------------------
   // SIMULATION PLAYBACK & MOVEMENT LOOP
@@ -148,17 +163,57 @@ export function App() {
         if (next >= 1.0) {
           // Reached next waypoint!
           setCurrentWaypointIdx((currIdx) => {
-            const pathLen = routeResult.path.length;
+            const currentPath = activeSimulationPath.length > 0 ? activeSimulationPath : routeResult.path;
+            const pathLen = currentPath.length;
             const nextIdx = currIdx + 1;
             setTraversedCount(c => c + 1);
 
             if (nextIdx >= pathLen - 1) {
-              // Reached Exit Gate! Trigger Victory
-              setSimulationPhase('SUCCESS');
-              setCameraMode('EXIT');
-              stopSiren();
-              playSuccessFanfare();
-              return pathLen - 1;
+              const finalNode = currentPath[pathLen - 1] || startNodeId;
+              setLastPositionId(finalNode);
+
+              if (isTrappedRun) {
+                // Character reached final safe point where no safe continuation exists!
+                // Section 7 STUCK MOMENT:
+                // 0.0s: reaches final safe point
+                // 0.3s: character stops
+                // 0.45s: route begins fading
+                // 0.75s: siren starts
+                // 0.80s: red emergency lights pulse
+                // 1.40s: failure modal
+                setSimulationPhase('TRAPPED');
+                setCameraMode('TRAPPED');
+
+                clearTrappedTimers();
+
+                // 750ms: Siren starts
+                const sirenTimer = setTimeout(() => {
+                  startSiren();
+                }, 750);
+
+                // 1450ms: Camera pulls back slightly, Failure overlay appears
+                const failTimer = setTimeout(() => {
+                  setSimulationPhase('FAILED');
+                  setCameraMode('FAILED');
+                  playFailureAlarm();
+                }, 1450);
+
+                // Stop siren after 4.5 seconds so it doesn't drone on forever
+                const stopSirenTimer = setTimeout(() => {
+                  stopSiren();
+                }, 4500);
+
+                trappedTimersRef.current.push(sirenTimer, failTimer, stopSirenTimer);
+
+                return pathLen - 1;
+              } else {
+                // Reached Exit Gate! Trigger Victory
+                setSimulationPhase('SUCCESS');
+                setCameraMode('EXIT');
+                stopSiren();
+                playSuccessFanfare();
+                return pathLen - 1;
+              }
             }
             return nextIdx;
           });
@@ -169,7 +224,7 @@ export function App() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [simulationPhase, simulationSpeed, routeResult.path.length]);
+  }, [simulationPhase, simulationSpeed, activeSimulationPath, routeResult.path, isTrappedRun, startNodeId, clearTrappedTimers]);
 
   // -------------------------------------------------------------
   // DYNAMIC REROUTING DURING SIMULATION
@@ -179,7 +234,7 @@ export function App() {
     if (simulationPhase !== 'RUNNING') return;
 
     // Check if the hazard affects the current remaining route
-    const currentPath = routeResult.path;
+    const currentPath = activeSimulationPath.length > 0 ? activeSimulationPath : routeResult.path;
     const currentNodeId = currentPath[currentWaypointIdx] || startNodeId;
 
     // Flash rerouting banner
@@ -217,36 +272,105 @@ export function App() {
             ? '✓ নতুন নিরাপদ রুট নির্ণীত! উদ্ধারকারী পুনর্নির্দেশিত হচ্ছে।'
             : '✓ NEW SAFE ROUTE SECURED! Agent redirecting.'
         );
+        setActiveSimulationPath([currentNodeId, ...rerouted.path.slice(1)]);
+        setIsTrappedRun(false);
         setCurrentWaypointIdx(0);
         setSegmentProgress(0);
         setSimulationPhase('RUNNING');
+        setCameraMode('FOLLOW');
         setTimeout(() => setRerouteNotice(null), 3000);
       } else {
-        stopSiren();
-        playFailureAlarm();
-        setSimulationPhase('FAILED');
-        setRerouteNotice(null);
+        // Dynamic failure: no alternative route exists
+        const fallbackBestEffort = findBestEffortPath(floorplan, currentNodeId, updatedHazards);
+        if (fallbackBestEffort.length > 1) {
+          setRerouteNotice(
+            language === 'bn'
+              ? '⚠️ কোনো উন্মুক্ত নির্গমনপথ নেই — নিরাপদ সীমা পর্যন্ত অনুসন্ধান চালানো হচ্ছে...'
+              : '⚠️ NO OPEN EXIT REACHABLE — Re-routing to furthest safe area...'
+          );
+          setActiveSimulationPath(fallbackBestEffort);
+          setIsTrappedRun(true);
+          setCurrentWaypointIdx(0);
+          setSegmentProgress(0);
+          setSimulationPhase('RUNNING');
+          setCameraMode('FOLLOW');
+          setTimeout(() => setRerouteNotice(null), 3000);
+        } else {
+          // Trapped immediately right here!
+          setLastPositionId(currentNodeId);
+          setRerouteNotice(null);
+          setSimulationPhase('TRAPPED');
+          setCameraMode('TRAPPED');
+          clearTrappedTimers();
+          const sirenTimer = setTimeout(() => startSiren(), 750);
+          const failTimer = setTimeout(() => {
+            setSimulationPhase('FAILED');
+            setCameraMode('FAILED');
+            playFailureAlarm();
+          }, 1450);
+          const stopTimer = setTimeout(() => stopSiren(), 4500);
+          trappedTimersRef.current.push(sirenTimer, failTimer, stopTimer);
+        }
       }
     }, 600);
-  }, [simulationPhase, routeResult.path, currentWaypointIdx, startNodeId, language, hazards, floorplan]);
+  }, [simulationPhase, activeSimulationPath, routeResult.path, currentWaypointIdx, startNodeId, language, hazards, floorplan, clearTrappedTimers]);
 
   // -------------------------------------------------------------
   // SIMULATION ACTIONS (START, PAUSE, RESTART, EXIT)
   // -------------------------------------------------------------
   const handleStartSimulation = React.useCallback(() => {
-    if (routeResult.status !== 'OPTIMAL_ROUTE_FOUND') {
-      playFailureAlarm();
-      return;
+    clearTrappedTimers();
+    stopSiren(); // RULE: NEVER play siren when simulation starts normally!
+
+    if (routeResult.status === 'OPTIMAL_ROUTE_FOUND') {
+      setActiveSimulationPath(routeResult.path);
+      setIsTrappedRun(false);
+      setLastPositionId(routeResult.path[routeResult.path.length - 1] || startNodeId);
+      setIsCinematicMode(true);
+      setSimulationPhase('RUNNING');
+      setCameraMode('FOLLOW');
+      setCurrentWaypointIdx(0);
+      setSegmentProgress(0);
+      setTraversedCount(0);
+      setRerouteNotice(null);
+    } else {
+      // TRAPPED / NO ROUTE AVAILABLE CASE
+      const bestEffort = findBestEffortPath(floorplan, startNodeId, hazards);
+      setActiveSimulationPath(bestEffort);
+      setIsTrappedRun(true);
+      setLastPositionId(bestEffort[bestEffort.length - 1] || startNodeId);
+      setIsCinematicMode(true);
+      setSimulationPhase('RUNNING');
+      setCameraMode('FOLLOW');
+      setCurrentWaypointIdx(0);
+      setSegmentProgress(0);
+      setTraversedCount(0);
+      setRerouteNotice(
+        language === 'bn'
+          ? 'উন্মুক্ত কোনো নির্গমনপথ নেই — নিরাপদ সীমা পর্যন্ত অনুসন্ধান চালানো হচ্ছে...'
+          : 'NO OPEN EXIT FOUND — Conducting best-effort evacuation attempt...'
+      );
+      setTimeout(() => setRerouteNotice(null), 3500);
+
+      // If best effort path has no forward traversal (already at dead end or start node blocked),
+      // transition smoothly to trapped after a brief realization beat
+      if (bestEffort.length <= 1) {
+        const immediateTrapped = setTimeout(() => {
+          setSimulationPhase('TRAPPED');
+          setCameraMode('TRAPPED');
+          const sirenTimer = setTimeout(() => startSiren(), 750);
+          const failTimer = setTimeout(() => {
+            setSimulationPhase('FAILED');
+            setCameraMode('FAILED');
+            playFailureAlarm();
+          }, 1450);
+          const stopTimer = setTimeout(() => stopSiren(), 4500);
+          trappedTimersRef.current.push(sirenTimer, failTimer, stopTimer);
+        }, 600);
+        trappedTimersRef.current.push(immediateTrapped);
+      }
     }
-    setIsCinematicMode(true);
-    setSimulationPhase('RUNNING');
-    setCameraMode('FOLLOW');
-    setCurrentWaypointIdx(0);
-    setSegmentProgress(0);
-    setTraversedCount(0);
-    setRerouteNotice(null);
-    startSiren();
-  }, [routeResult.status]);
+  }, [routeResult, floorplan, startNodeId, hazards, language, clearTrappedTimers]);
 
   const handlePauseResumeSimulation = React.useCallback(() => {
     if (simulationPhase === 'RUNNING') {
@@ -254,21 +378,40 @@ export function App() {
       stopSiren();
     } else if (simulationPhase === 'PAUSED') {
       setSimulationPhase('RUNNING');
-      startSiren();
+      // No siren on resume
     }
   }, [simulationPhase]);
 
   const handleRestartSimulation = React.useCallback(() => {
+    clearTrappedTimers();
+    stopSiren(); // NEVER play siren when restarting!
     setCurrentWaypointIdx(0);
     setSegmentProgress(0);
     setTraversedCount(0);
     setSimulationPhase('RUNNING');
     setCameraMode('FOLLOW');
     setRerouteNotice(null);
-    startSiren();
-  }, []);
+
+    // If it was already a trapped single-node run, replay trapped
+    if (isTrappedRun && activeSimulationPath.length <= 1) {
+      const immediateTrapped = setTimeout(() => {
+        setSimulationPhase('TRAPPED');
+        setCameraMode('TRAPPED');
+        const sirenTimer = setTimeout(() => startSiren(), 750);
+        const failTimer = setTimeout(() => {
+          setSimulationPhase('FAILED');
+          setCameraMode('FAILED');
+          playFailureAlarm();
+        }, 1450);
+        const stopTimer = setTimeout(() => stopSiren(), 4500);
+        trappedTimersRef.current.push(sirenTimer, failTimer, stopTimer);
+      }, 600);
+      trappedTimersRef.current.push(immediateTrapped);
+    }
+  }, [clearTrappedTimers, isTrappedRun, activeSimulationPath]);
 
   const handleExitSimulation = React.useCallback(() => {
+    clearTrappedTimers();
     setIsCinematicMode(false);
     setSimulationPhase('IDLE');
     setCameraMode('OVERVIEW');
@@ -276,7 +419,8 @@ export function App() {
     setCurrentWaypointIdx(0);
     setSegmentProgress(0);
     setRerouteNotice(null);
-  }, []);
+    setIsTrappedRun(false);
+  }, [clearTrappedTimers]);
 
   // -------------------------------------------------------------
   // HAZARD MANAGEMENT HANDLERS
@@ -461,6 +605,7 @@ export function App() {
               agentRotationY={agentRotationY}
               isAgentWalking={isAgentWalking}
               language={language}
+              activeSimulationPath={activeSimulationPath}
             />
           ) : (
             <MapVisualizer
@@ -493,6 +638,9 @@ export function App() {
               traversedCount={traversedCount}
               rerouteNotice={rerouteNotice}
               language={language}
+              lastPositionId={lastPositionId}
+              lastPositionName={nodeMap.get(lastPositionId)?.name?.[language] || lastPositionId}
+              isTrappedRun={isTrappedRun}
             />
           )}
         </div>

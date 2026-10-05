@@ -57,6 +57,38 @@ export const CinematicController: React.FC<CinematicControllerProps> = ({
         controlsRef.current.target.lerp(targetLookAt.current, lerpFactor);
         controlsRef.current.update();
       }
+    } else if (cameraMode === 'TRAPPED' || simulationPhase === 'TRAPPED') {
+      // Trapped Camera: Low-angle close push toward character revealing the blocked passage
+      targetCamPos.current.set(
+        agentPosition[0] + 3.2,
+        agentPosition[1] + 1.8,
+        agentPosition[2] + 3.6
+      );
+      targetLookAt.current.set(agentPosition[0], agentPosition[1] + 0.6, agentPosition[2]);
+
+      const lerpFactor = Math.min(1, delta * 3.2);
+      camera.position.lerp(targetCamPos.current, lerpFactor);
+
+      if (controlsRef.current) {
+        controlsRef.current.target.lerp(targetLookAt.current, lerpFactor);
+        controlsRef.current.update();
+      }
+    } else if (simulationPhase === 'FAILED') {
+      // Failure Modal Camera: Subtly pull back to frame the trapped agent and architecture
+      targetCamPos.current.set(
+        agentPosition[0] + 5.2,
+        agentPosition[1] + 4.2,
+        agentPosition[2] + 5.8
+      );
+      targetLookAt.current.set(agentPosition[0], agentPosition[1] + 0.5, agentPosition[2]);
+
+      const lerpFactor = Math.min(1, delta * 2.0);
+      camera.position.lerp(targetCamPos.current, lerpFactor);
+
+      if (controlsRef.current) {
+        controlsRef.current.target.lerp(targetLookAt.current, lerpFactor);
+        controlsRef.current.update();
+      }
     } else if (cameraMode === 'OVERVIEW' || simulationPhase === 'IDLE' || simulationPhase === 'PREPARING') {
       // Overview Isometric Camera
       targetCamPos.current.set(...overviewPosition);

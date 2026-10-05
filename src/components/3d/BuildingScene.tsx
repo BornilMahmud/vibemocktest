@@ -23,6 +23,7 @@ interface BuildingSceneProps {
   agentRotationY: number;
   isAgentWalking: boolean;
   language: Language;
+  activeSimulationPath?: string[];
 }
 
 // Map 2D floorplan node coordinates to 3D world space
@@ -105,6 +106,40 @@ const LuminousRoute: React.FC<{ points: [number, number, number][] }> = ({ point
   );
 };
 
+// -------------------------------------------------------------
+// Emergency Strobe Light (Flashes rapidly only at failure/trapped)
+// -------------------------------------------------------------
+const EmergencyStrobeLight: React.FC<{ active: boolean }> = ({ active }) => {
+  const lightRef = useRef<THREE.PointLight>(null);
+  const lightRef2 = useRef<THREE.PointLight>(null);
+
+  useFrame(({ clock }) => {
+    if (!active) {
+      if (lightRef.current) lightRef.current.intensity = 0;
+      if (lightRef2.current) lightRef2.current.intensity = 0;
+      return;
+    }
+    // High-visibility emergency pulse at ~5Hz (120-200ms intervals)
+    const t = clock.getElapsedTime() * 18;
+    const pulse = Math.sin(t) > 0.15 ? 1 : 0;
+    if (lightRef.current) {
+      lightRef.current.intensity = pulse * 3.8;
+    }
+    if (lightRef2.current) {
+      lightRef2.current.intensity = pulse * 2.2;
+    }
+  });
+
+  if (!active) return null;
+
+  return (
+    <group>
+      <pointLight ref={lightRef} position={[0, 9, 0]} color="#ef4444" distance={38} />
+      <pointLight ref={lightRef2} position={[0, 3.5, 0]} color="#dc2626" distance={22} />
+    </group>
+  );
+};
+
 export const BuildingScene: React.FC<BuildingSceneProps> = ({
   floorplan,
   startNodeId,
@@ -120,6 +155,7 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
   agentRotationY,
   isAgentWalking,
   language,
+  activeSimulationPath,
 }) => {
   const { to3D } = useCoordinateMapping(floorplan);
 
@@ -129,13 +165,14 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
     return map;
   }, [floorplan.nodes, to3D]);
 
+  const pathToRender = activeSimulationPath || (routeResult.status === 'OPTIMAL_ROUTE_FOUND' ? routeResult.path : []);
+
   // Optimal route 3D waypoint coordinates
   const routePoints = useMemo(() => {
-    if (routeResult.status !== 'OPTIMAL_ROUTE_FOUND') return [];
-    return routeResult.path
+    return pathToRender
       .map(id => nodePositions.get(id))
       .filter((p): p is [number, number, number] => p !== undefined);
-  }, [routeResult.status, routeResult.path, nodePositions]);
+  }, [pathToRender, nodePositions]);
 
   // Destination Exit coordinates for camera focus
   const exitPosition = useMemo(() => {
@@ -145,7 +182,8 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
     return null;
   }, [routeResult.destinationExitId, nodePositions]);
 
-  const isEmergency = simulationPhase !== 'IDLE';
+  const isFailureMode = simulationPhase === 'TRAPPED' || simulationPhase === 'FAILED';
+  const isSuccessMode = simulationPhase === 'SUCCESS';
 
   return (
     <div className="w-full h-full relative select-none">
@@ -154,28 +192,36 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
         camera={{ position: [20, 24, 20], fov: 40 }}
         className="w-full h-full"
       >
-        {/* Background Cyber Fog */}
-        <fog attach="fog" args={[isEmergency ? '#0a0508' : '#080d1a', 28, 85]} />
+        {/* Background Cyber Fog (Clean and atmospheric) */}
+        <fog
+          attach="fog"
+          args={[
+            isFailureMode ? '#120507' : isSuccessMode ? '#04130d' : '#080d1a',
+            28,
+            85,
+          ]}
+        />
 
-        {/* Dynamic Architectural Lighting */}
-        <ambientLight intensity={isEmergency ? 0.25 : 0.4} color={isEmergency ? '#450a0a' : '#0f172a'} />
+        {/* Dynamic Architectural Lighting (Normal start is clean, calm & bright) */}
+        <ambientLight
+          intensity={isFailureMode ? 0.2 : isSuccessMode ? 0.5 : 0.45}
+          color={isFailureMode ? '#450a0a' : isSuccessMode ? '#064e3b' : '#0f172a'}
+        />
         <directionalLight
           position={[18, 28, 12]}
-          intensity={isEmergency ? 0.8 : 1.3}
-          color={isEmergency ? '#fecdd3' : '#e0f2fe'}
+          intensity={isFailureMode ? 0.7 : 1.3}
+          color={isFailureMode ? '#fecdd3' : isSuccessMode ? '#a7f3d0' : '#e0f2fe'}
           castShadow
           shadow-mapSize={[1024, 1024]}
         />
         <directionalLight
           position={[-15, 14, -12]}
           intensity={0.35}
-          color={isEmergency ? '#f43f5e' : '#0284c7'}
+          color={isFailureMode ? '#f43f5e' : '#0284c7'}
         />
 
-        {/* Emergency Ambient Ceiling Accents when Simulation is Active */}
-        {isEmergency && (
-          <pointLight position={[0, 10, 0]} color="#f43f5e" intensity={1.2} distance={30} />
-        )}
+        {/* Rapid Red Emergency Warning Strobe Lights (Only at failure condition) */}
+        <EmergencyStrobeLight active={isFailureMode} />
 
         {/* Ground Floor Slab & Cyber Architectural Grid */}
         <mesh position={[0, -0.15, 0]} receiveShadow>
@@ -219,18 +265,18 @@ export const BuildingScene: React.FC<BuildingSceneProps> = ({
           );
         })}
 
-        {/* 2. LUMINOUS OPTIMAL ROUTE TUBE */}
-        {routeResult.status === 'OPTIMAL_ROUTE_FOUND' && routePoints.length >= 2 && (
+        {/* 2. LUMINOUS ROUTE TUBE (Extinguishes immediately on Trapped / Failure) */}
+        {!isFailureMode && routePoints.length >= 2 && (
           <LuminousRoute points={routePoints} />
         )}
 
         {/* 3. PROCEDURAL HUMAN EVACUATION CHARACTER */}
-        {routeResult.status === 'OPTIMAL_ROUTE_FOUND' && (
+        {(routeResult.status === 'OPTIMAL_ROUTE_FOUND' || simulationPhase !== 'IDLE') && (
           <EvacueeCharacter
             position={agentPosition}
             rotationY={agentRotationY}
             isWalking={isAgentWalking}
-            isEmergency={isEmergency}
+            isEmergency={isFailureMode}
           />
         )}
 

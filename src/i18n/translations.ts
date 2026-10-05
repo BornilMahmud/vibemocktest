@@ -164,6 +164,15 @@ export interface Translations {
   couldNotLoadBuilding: string;
   problemPrefix: string;
   tryAnotherFile: string;
+
+  // Trapped / Failure Simulation Experience
+  trappedStatus: string;
+  trappedDesc: string;
+  simulateTrapped: string;
+  lastPositionLabel: string;
+  exitsAvailableLabel: string;
+  routeLostNotice: string;
+  trappedFailureDesc: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -321,6 +330,15 @@ export const translations: Record<Language, Translations> = {
     couldNotLoadBuilding: 'The application could not load this building.',
     problemPrefix: 'Problem',
     tryAnotherFile: 'TRY ANOTHER FILE',
+
+    // Trapped / Failure Simulation Experience
+    trappedStatus: 'AGENT TRAPPED — DEAD END',
+    trappedDesc: 'Evacuation agent reached the furthest safe point. All forward exits are blocked or sealed.',
+    simulateTrapped: 'Simulate Escape Attempt',
+    lastPositionLabel: 'LAST POSITION',
+    exitsAvailableLabel: 'EXITS AVAILABLE',
+    routeLostNotice: '⚠️ ROUTE LOST — NO SAFE EXIT AHEAD',
+    trappedFailureDesc: 'The evacuation attempt could not reach an accessible exit under the current hazard conditions.',
   },
   bn: {
     appName: 'স্মার্ট এস্কেপ',
@@ -476,5 +494,14 @@ export const translations: Record<Language, Translations> = {
     couldNotLoadBuilding: 'এই বিল্ডিং ডেটা লোড করা যায়নি।',
     problemPrefix: 'সমস্যা',
     tryAnotherFile: 'অন্য ফাইল নির্বাচন করুন',
+
+    // Trapped / Failure Simulation Experience
+    trappedStatus: 'উদ্ধারকারী অবরুদ্ধ — পথ সমাপ্ত',
+    trappedDesc: 'উদ্ধারকারী সর্বোচ্চ সম্ভাব্য নিরাপদ স্থানে পৌঁছেছেন। পরবর্তী সকল নির্গমন পথ বন্ধ বা অবরুদ্ধ।',
+    simulateTrapped: 'বহির্গমন প্রচেষ্টা চালান',
+    lastPositionLabel: 'সর্বশেষ অবস্থান',
+    exitsAvailableLabel: 'উন্মুক্ত নির্গমন দ্বার',
+    routeLostNotice: '⚠️ পথ অবরুদ্ধ — সামনে কোনো নিরাপদ নির্গমন নেই',
+    trappedFailureDesc: 'বর্তমান ঝুঁকির অবস্থায় কোনো উন্মুক্ত নির্গমনপথে পৌঁছানো সম্ভব হয়নি।',
   },
 };
