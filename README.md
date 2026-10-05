@@ -56,6 +56,15 @@ A mission-critical, frontend-only emergency evacuation pathfinder and tactical b
   - Synthetic tactical chimes on route found.
   - Alert buzzer on hazard detection.
   - Testable emergency evacuation wailing siren (100% offline, zero external audio assets).
+- **3D Emergency Operations Command Center (Three.js & React Three Fiber)**:
+  - Full architectural isometric 3D visualization using Three.js, `@react-three/fiber`, and `@react-three/drei`.
+  - Atmospheric depth with subtle cyber fog, directional soft shadows, and tactical floor grid.
+  - 3D physical platforms for Rooms, cylindrical Junction hubs, and green illuminated Exit portals with vertical light beams.
+  - Luminous 3D CatmullRom energy tube with animated moving photon pulses along the optimal escape path.
+  - Animated red/orange pulsing hazard beacons and warning markers on blocked nodes/corridors.
+  - 3D simulation runner avatar moving along the route during step-by-step playback.
+  - Orbit controls with architectural pitch limits, smooth damping, and one-click camera reset.
+  - Seamless toggle between **3D Command Deck** and **2D Blueprint Floorplan** in the header.
 - **Multiple Realistic Presets**:
   - Contest Benchmark Complex (Dual exit baseline)
   - Metropolitan Hospital (ICU Wing & Triage)
@@ -65,6 +74,7 @@ A mission-critical, frontend-only emergency evacuation pathfinder and tactical b
 
 ## 🛠️ Tech Stack
 - **Framework**: React 19 + TypeScript (strict typing with `verbatimModuleSyntax`)
+- **3D Graphics**: Three.js, React Three Fiber (`@react-three/fiber`), `@react-three/drei`
 - **Build Tool**: Vite 8 (instant HMR and sub-second production bundling)
 - **Styling**: Tailwind CSS v4 + Custom Cyberpunk/Tactical Glassmorphism Theme
 - **Icons**: Lucide React

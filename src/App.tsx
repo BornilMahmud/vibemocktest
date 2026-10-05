@@ -2,6 +2,7 @@ import React from 'react';
 import { Header } from './components/Header';
 import { ControlCenter } from './components/ControlCenter';
 import { MapVisualizer } from './components/MapVisualizer';
+import { ThreeMapVisualizer } from './components/ThreeMapVisualizer';
 import { RouteIntel } from './components/RouteIntel';
 import { Legend } from './components/Legend';
 import { ImportModal } from './components/ImportModal';
@@ -13,6 +14,7 @@ import { playHazardAlertSound, playRouteFoundSound } from './lib/audio';
 
 export function App() {
   const [language, setLanguage] = React.useState<Language>('en');
+  const [viewMode, setViewMode] = React.useState<'3d' | '2d'>('3d');
   const [floorplan, setFloorplan] = React.useState<FloorplanData>(CONTEST_BENCHMARK_PRESET);
   const [startNodeId, setStartNodeId] = React.useState<string>('R1');
 
@@ -252,6 +254,8 @@ export function App() {
         onLanguageChange={setLanguage}
         onReset={handleResetAll}
         routeStatus={routeResult.status}
+        viewMode={viewMode}
+        onToggleViewMode={setViewMode}
       />
 
       {/* 2. Main Operations Center Layout */}
@@ -273,20 +277,36 @@ export function App() {
           language={language}
         />
 
-        {/* Center: Tactical Interactive Floorplan Map */}
-        <MapVisualizer
-          floorplan={floorplan}
-          startNodeId={startNodeId}
-          onSelectStartNode={setStartNodeId}
-          hazards={hazards}
-          onToggleNodeHazard={handleToggleNodeHazard}
-          onToggleEdgeHazard={handleToggleEdgeHazard}
-          onToggleExitClosed={handleToggleExitClosed}
-          routeResult={routeResult}
-          simulationStepIndex={simulationStepIndex}
-          isSimulating={isSimulating}
-          language={language}
-        />
+        {/* Center: Tactical Interactive Floorplan Map (3D Tactical Deck or 2D Blueprint) */}
+        {viewMode === '3d' ? (
+          <ThreeMapVisualizer
+            floorplan={floorplan}
+            startNodeId={startNodeId}
+            onSelectStartNode={setStartNodeId}
+            hazards={hazards}
+            onToggleNodeHazard={handleToggleNodeHazard}
+            onToggleEdgeHazard={handleToggleEdgeHazard}
+            onToggleExitClosed={handleToggleExitClosed}
+            routeResult={routeResult}
+            simulationStepIndex={simulationStepIndex}
+            isSimulating={isSimulating}
+            language={language}
+          />
+        ) : (
+          <MapVisualizer
+            floorplan={floorplan}
+            startNodeId={startNodeId}
+            onSelectStartNode={setStartNodeId}
+            hazards={hazards}
+            onToggleNodeHazard={handleToggleNodeHazard}
+            onToggleEdgeHazard={handleToggleEdgeHazard}
+            onToggleExitClosed={handleToggleExitClosed}
+            routeResult={routeResult}
+            simulationStepIndex={simulationStepIndex}
+            isSimulating={isSimulating}
+            language={language}
+          />
+        )}
 
         {/* Right: Route Intelligence, Cost Metrics & Evacuation Simulator Deck */}
         <RouteIntel

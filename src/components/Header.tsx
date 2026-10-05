@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Volume2, VolumeX, RotateCcw, AlertTriangle, Radio } from 'lucide-react';
+import { ShieldAlert, Volume2, VolumeX, RotateCcw, AlertTriangle, Radio, Box, Map } from 'lucide-react';
 import { translations, type Language } from '../i18n/translations';
 import { getSoundEnabled, isSirenActive, playClickSound, setSoundEnabled, toggleSiren } from '../lib/audio';
 
@@ -8,6 +8,8 @@ interface HeaderProps {
   onLanguageChange: (lang: Language) => void;
   onReset: () => void;
   routeStatus: string;
+  viewMode: '3d' | '2d';
+  onToggleViewMode: (mode: '3d' | '2d') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,6 +17,8 @@ export const Header: React.FC<HeaderProps> = ({
   onLanguageChange,
   onReset,
   routeStatus,
+  viewMode,
+  onToggleViewMode,
 }) => {
   const t = translations[language];
   const [soundOn, setSoundOn] = React.useState(getSoundEnabled());
@@ -95,6 +99,40 @@ export const Header: React.FC<HeaderProps> = ({
         >
           {soundOn ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
         </button>
+
+        {/* 3D / 2D View Switch */}
+        <div className="flex items-center rounded-lg p-0.5 bg-slate-900 border border-slate-800" role="group" aria-label="View Mode">
+          <button
+            onClick={() => {
+              playClickSound();
+              onToggleViewMode('3d');
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              viewMode === '3d'
+                ? 'bg-sky-500 text-slate-950 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="3D Tactical Command Deck"
+          >
+            <Box className="w-3.5 h-3.5" />
+            <span>3D</span>
+          </button>
+          <button
+            onClick={() => {
+              playClickSound();
+              onToggleViewMode('2d');
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              viewMode === '2d'
+                ? 'bg-sky-500 text-slate-950 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            title="2D Blueprint Floorplan"
+          >
+            <Map className="w-3.5 h-3.5" />
+            <span>2D</span>
+          </button>
+        </div>
 
         {/* Language Switch */}
         <div className="flex items-center rounded-lg p-0.5 bg-slate-900 border border-slate-800" role="group" aria-label="Language Selector">
