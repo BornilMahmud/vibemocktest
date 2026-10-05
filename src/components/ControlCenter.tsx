@@ -9,7 +9,11 @@ import {
   CheckCircle2, 
   Trash2,
   SlidersHorizontal,
-  Workflow
+  Workflow,
+  ShieldCheck,
+  Scale,
+  Activity,
+  Radio
 } from 'lucide-react';
 import type { FloorplanData, HazardState } from '../types/graph';
 import { translations, type Language } from '../i18n/translations';
@@ -265,15 +269,20 @@ export const ControlCenter: React.FC<ControlCenterProps> = ({
         </div>
       )}
 
-      {/* Tab 2: Contest Verification Scenarios (1 to 5) */}
+      {/* Tab 2: All Verification Scenarios (Contest, Tie-breaks, Hospital, Cyber Defense) */}
       {activeTab === 'scenarios' && (
         <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-230px)] pr-1">
           <div className="p-2.5 rounded-xl bg-sky-950/40 border border-sky-800/40 text-[11px] text-sky-300 leading-relaxed">
             {language === 'bn'
-              ? 'অফিসিয়াল প্রতিযোগিতার ৫টি যাচাইকরণ দৃশ্যপট এক ক্লিকে পরীক্ষা করুন।'
-              : 'Directly verify all 5 official contest problem scenarios with one-click test injections.'}
+              ? 'অফিসিয়াল কন্টেস্ট, টাই-ব্রেকিং অ্যালগরিদম, এবং বিভিন্ন ভবনের মোট ১২টি দৃশ্যপট এক ক্লিকে পরীক্ষা করুন।'
+              : 'Directly verify all 12 official contest, tie-break, hospital, and cyber defense scenarios with one-click test injections.'}
           </div>
 
+          {/* Group 1: Official Contest Benchmark (1-5) */}
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-sky-400 uppercase tracking-wider mt-1 px-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{t.scenarioCategoryContest}</span>
+          </div>
           {[
             { id: 1, title: t.scenario1, desc: t.scenario1Desc, badge: 'Target: Cost 7' },
             { id: 2, title: t.scenario2, desc: t.scenario2Desc, badge: 'Target: Cost 11' },
@@ -283,7 +292,7 @@ export const ControlCenter: React.FC<ControlCenterProps> = ({
           ].map((sc) => (
             <div
               key={sc.id}
-              className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-sky-500/40 transition-all flex flex-col gap-1.5 group"
+              className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-sky-500/40 transition-all flex flex-col gap-1.5 group"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-100 group-hover:text-sky-300 transition-colors">
@@ -302,6 +311,118 @@ export const ControlCenter: React.FC<ControlCenterProps> = ({
                   onApplyScenario(sc.id);
                 }}
                 className="mt-1 w-full py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-slate-950 border border-sky-500/30 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {t.runScenario}
+              </button>
+            </div>
+          ))}
+
+          {/* Group 2: Tie-Breaking Determinism Proofs (6-7) */}
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400 uppercase tracking-wider mt-3 px-1 border-t border-slate-800/80 pt-2">
+            <Scale className="w-3.5 h-3.5 text-amber-400" />
+            <span>{t.scenarioCategoryTieBreak}</span>
+          </div>
+          {[
+            { id: 6, title: t.scenario6, desc: t.scenario6Desc, badge: 'Tie-break: E1 Wins' },
+            { id: 7, title: t.scenario7, desc: t.scenario7Desc, badge: 'Tie-break: Path A Wins' },
+          ].map((sc) => (
+            <div
+              key={sc.id}
+              className="p-2.5 rounded-xl bg-slate-950/70 border border-amber-900/40 hover:border-amber-500/40 transition-all flex flex-col gap-1.5 group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+                  {sc.title}
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-amber-400 border border-amber-800/60">
+                  {sc.badge}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-mono">
+                {sc.desc}
+              </p>
+              <button
+                onClick={() => {
+                  playClickSound();
+                  onApplyScenario(sc.id);
+                }}
+                className="mt-1 w-full py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {t.runScenario}
+              </button>
+            </div>
+          ))}
+
+          {/* Group 3: Metropolitan Hospital Emergency (8-10) */}
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 uppercase tracking-wider mt-3 px-1 border-t border-slate-800/80 pt-2">
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{t.scenarioCategoryHospital}</span>
+          </div>
+          {[
+            { id: 8, title: t.scenario8, desc: t.scenario8Desc, badge: 'Target: Helipad' },
+            { id: 9, title: t.scenario9, desc: t.scenario9Desc, badge: 'Target: Ambulance' },
+            { id: 10, title: t.scenario10, desc: t.scenario10Desc, badge: 'Target: Trapped' },
+          ].map((sc) => (
+            <div
+              key={sc.id}
+              className="p-2.5 rounded-xl bg-slate-950/70 border border-emerald-900/40 hover:border-emerald-500/40 transition-all flex flex-col gap-1.5 group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                  {sc.title}
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-emerald-400 border border-emerald-800/60">
+                  {sc.badge}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-mono">
+                {sc.desc}
+              </p>
+              <button
+                onClick={() => {
+                  playClickSound();
+                  onApplyScenario(sc.id);
+                }}
+                className="mt-1 w-full py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 border border-emerald-500/30 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {t.runScenario}
+              </button>
+            </div>
+          ))}
+
+          {/* Group 4: Cyber Defense Datacenter (11-12) */}
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-purple-400 uppercase tracking-wider mt-3 px-1 border-t border-slate-800/80 pt-2">
+            <Radio className="w-3.5 h-3.5 text-purple-400" />
+            <span>{t.scenarioCategoryCyber}</span>
+          </div>
+          {[
+            { id: 11, title: t.scenario11, desc: t.scenario11Desc, badge: 'Target: East Blast' },
+            { id: 12, title: t.scenario12, desc: t.scenario12Desc, badge: 'Target: West Stair' },
+          ].map((sc) => (
+            <div
+              key={sc.id}
+              className="p-2.5 rounded-xl bg-slate-950/70 border border-purple-900/40 hover:border-purple-500/40 transition-all flex flex-col gap-1.5 group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-100 group-hover:text-purple-300 transition-colors">
+                  {sc.title}
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-purple-400 border border-purple-800/60">
+                  {sc.badge}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-mono">
+                {sc.desc}
+              </p>
+              <button
+                onClick={() => {
+                  playClickSound();
+                  onApplyScenario(sc.id);
+                }}
+                className="mt-1 w-full py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500 text-purple-400 hover:text-slate-950 border border-purple-500/30 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {t.runScenario}

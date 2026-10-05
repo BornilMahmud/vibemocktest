@@ -151,12 +151,10 @@ export const RoomSpace: React.FC<RoomSpaceProps> = ({
           ) : isStart ? (
             <Compass className="w-3 h-3 text-sky-400" />
           ) : null}
-          <span>{node.id}</span>
-          {hovered && (
-            <span className="text-[9px] opacity-80 font-sans pl-0.5">
-              {node.name[language] || node.name.en}
-            </span>
-          )}
+          <span className="font-bold">{node.id}</span>
+          <span className="text-[9px] opacity-85 font-sans pl-0.5 max-w-[95px] truncate hidden sm:inline">
+            {node.name[language] || node.name.en}
+          </span>
         </div>
       </Html>
     </group>
@@ -261,12 +259,10 @@ export const JunctionHub: React.FC<JunctionHubProps> = ({
               : 'bg-slate-950/90 text-slate-300 border-slate-800'
           }`}
         >
-          <span>{node.id}</span>
-          {hovered && (
-            <span className="text-[8px] opacity-80 font-sans pl-1 whitespace-nowrap">
-              {node.name[language] || node.name.en}
-            </span>
-          )}
+          <span className="font-bold">{node.id}</span>
+          <span className="text-[8px] opacity-80 font-sans pl-1 max-w-[80px] truncate hidden sm:inline">
+            {node.name[language] || node.name.en}
+          </span>
         </div>
       </Html>
     </group>

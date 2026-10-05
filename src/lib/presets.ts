@@ -155,8 +155,55 @@ export const TECH_CAMPUS_PRESET: FloorplanData = {
   ],
 };
 
+export const TIE_BREAK_EXITS_PRESET: FloorplanData = {
+  id: 'tie-break-exits',
+  title: {
+    en: 'Tie-Break Benchmark (Equal Exits)',
+    bn: 'টাই-ব্রেক মানদণ্ড (সমান বহির্গমন পথ)',
+  },
+  description: {
+    en: 'Two exits with identical path cost (5). Verified that engine selects E1 over E2 by alphabetical tie-breaker.',
+    bn: 'উভয় বহির্গমনের দূরত্ব সমান (৫)। অ্যালগরিদম বর্ণানুক্রমিক নিয়মে E1 কে নির্বাচন করে।',
+  },
+  nodes: [
+    { id: 'START', name: { en: 'Start Point', bn: 'শুরুর স্থান' }, type: 'room', x: 120, y: 240 },
+    { id: 'E2', name: { en: 'Exit 2 (South Gate)', bn: 'নির্গমন ২' }, type: 'exit', x: 520, y: 360 },
+    { id: 'E1', name: { en: 'Exit 1 (North Gate)', bn: 'নির্গমন ১' }, type: 'exit', x: 520, y: 120 },
+  ],
+  edges: [
+    { id: 'e-s-e1', source: 'START', target: 'E1', cost: 5, label: 'North Run (Cost 5)' },
+    { id: 'e-s-e2', source: 'START', target: 'E2', cost: 5, label: 'South Run (Cost 5)' },
+  ],
+};
+
+export const TIE_BREAK_PATHS_PRESET: FloorplanData = {
+  id: 'tie-break-paths',
+  title: {
+    en: 'Tie-Break Benchmark (Equal Paths)',
+    bn: 'টাই-ব্রেক মানদণ্ড (সমান রুটসমূহ)',
+  },
+  description: {
+    en: 'Two paths to EXIT with identical cost (4): START->A->EXIT vs START->B->EXIT. Engine selects path via A.',
+    bn: 'একই খরচে (৪) দুটি বিকল্প রুট। নোড সিকোয়েন্স অনুযায়ী A রুট বিজয়ী হয়।',
+  },
+  nodes: [
+    { id: 'START', name: { en: 'Start Point', bn: 'শুরুর স্থান' }, type: 'room', x: 120, y: 240 },
+    { id: 'A', name: { en: 'Waypoint Alpha', bn: 'ওয়েপয়েন্ট আলফা' }, type: 'corridor', x: 320, y: 140 },
+    { id: 'B', name: { en: 'Waypoint Bravo', bn: 'ওয়েপয়েন্ট ব্রাভো' }, type: 'corridor', x: 320, y: 340 },
+    { id: 'EXIT', name: { en: 'Final Safe Exit', bn: 'চূড়ান্ত নিরাপদ নির্গমন' }, type: 'exit', x: 520, y: 240 },
+  ],
+  edges: [
+    { id: 'e-s-a', source: 'START', target: 'A', cost: 2, label: 'Path A Seg 1' },
+    { id: 'e-a-x', source: 'A', target: 'EXIT', cost: 2, label: 'Path A Seg 2' },
+    { id: 'e-s-b', source: 'START', target: 'B', cost: 2, label: 'Path B Seg 1' },
+    { id: 'e-b-x', source: 'B', target: 'EXIT', cost: 2, label: 'Path B Seg 2' },
+  ],
+};
+
 export const PRESETS = [
   CONTEST_BENCHMARK_PRESET,
   HOSPITAL_WING_PRESET,
   TECH_CAMPUS_PRESET,
+  TIE_BREAK_EXITS_PRESET,
+  TIE_BREAK_PATHS_PRESET,
 ];

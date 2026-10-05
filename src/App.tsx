@@ -12,7 +12,13 @@ import { InitialLoader } from './components/InitialLoader';
 import { CinematicProductReel } from './components/CinematicProductReel';
 import type { FloorplanData, HazardState, GraphNode } from './types/graph';
 import type { SimulationPhase, CameraViewMode } from './types/simulation';
-import { CONTEST_BENCHMARK_PRESET } from './lib/presets';
+import { 
+  CONTEST_BENCHMARK_PRESET, 
+  HOSPITAL_WING_PRESET, 
+  TECH_CAMPUS_PRESET, 
+  TIE_BREAK_EXITS_PRESET, 
+  TIE_BREAK_PATHS_PRESET 
+} from './lib/presets';
 import { computeOptimalRoute } from './lib/dijkstra';
 import { findBestEffortPath } from './lib/traversal';
 import type { Language } from './i18n/translations';
@@ -518,35 +524,83 @@ export function App() {
     URL.revokeObjectURL(url);
   }, [floorplan, startNodeId, hazards, routeResult]);
 
-  // One-click Contest Verification Scenarios (1 to 5)
+  // One-click Verification Scenarios (Contest, Tie-breaks, Hospital, Cyber Defense)
   const handleApplyScenario = React.useCallback((scenarioIndex: number) => {
     handleExitSimulation();
-    setFloorplan(CONTEST_BENCHMARK_PRESET);
     switch (scenarioIndex) {
       case 1:
-        // Baseline: R1 -> C1 -> C2 -> E1 (cost 7)
+        // Contest Baseline: R1 -> C1 -> C2 -> E1 (cost 7)
+        setFloorplan(CONTEST_BENCHMARK_PRESET);
         setStartNodeId('R1');
         setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
         break;
       case 2:
-        // Block C2: R1 -> C1 -> C3 -> C4 -> E2 (cost 11)
+        // Contest Block C2: R1 -> C1 -> C3 -> C4 -> E2 (cost 11)
+        setFloorplan(CONTEST_BENCHMARK_PRESET);
         setStartNodeId('R1');
         setHazards({ blockedNodes: new Set(['C2']), blockedEdges: new Set(), closedExits: new Set() });
         break;
       case 3:
-        // Close E1 and E2: No route available
+        // Contest Close E1 & E2: No route available
+        setFloorplan(CONTEST_BENCHMARK_PRESET);
         setStartNodeId('R1');
         setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set(['E1', 'E2']) });
         break;
       case 4:
-        // Start R2: R2 -> C3 -> C4 -> E2 (cost 7)
+        // Contest Start R2: R2 -> C3 -> C4 -> E2 (cost 7)
+        setFloorplan(CONTEST_BENCHMARK_PRESET);
         setStartNodeId('R2');
         setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
         break;
       case 5:
-        // Start R1, block R1: Starting location blocked
+        // Contest Start R1, block R1: Starting location blocked
+        setFloorplan(CONTEST_BENCHMARK_PRESET);
         setStartNodeId('R1');
         setHazards({ blockedNodes: new Set(['R1']), blockedEdges: new Set(), closedExits: new Set() });
+        break;
+      case 6:
+        // Tie-Break Equal Exits: E1 vs E2 (both cost 5) -> Resolves E1
+        setFloorplan(TIE_BREAK_EXITS_PRESET);
+        setStartNodeId('START');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
+        break;
+      case 7:
+        // Tie-Break Equal Paths: Path A vs Path B (both cost 4) -> Resolves Path A
+        setFloorplan(TIE_BREAK_PATHS_PRESET);
+        setStartNodeId('START');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
+        break;
+      case 8:
+        // Hospital ICU Normal Evacuation -> Exit Alpha (Cost 8)
+        setFloorplan(HOSPITAL_WING_PRESET);
+        setStartNodeId('ICU');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
+        break;
+      case 9:
+        // Hospital Helipad Blocked -> Divert to Ambulance Bay (Cost 9)
+        setFloorplan(HOSPITAL_WING_PRESET);
+        setStartNodeId('ICU');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set(['EXIT_A']) });
+        break;
+      case 10:
+        // Hospital All Exits Sealed -> Trapped Simulation
+        setFloorplan(HOSPITAL_WING_PRESET);
+        setStartNodeId('WARDA');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set(['EXIT_A', 'EXIT_B', 'EXIT_C']) });
+        break;
+      case 11:
+        // Cyber Defense Datacenter Core -> Blast Exit East (Cost 9)
+        setFloorplan(TECH_CAMPUS_PRESET);
+        setStartNodeId('SERVER_HALL');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set() });
+        break;
+      case 12:
+        // Cyber Defense East Blast Sealed -> Divert to Stairwell West (Cost 8)
+        setFloorplan(TECH_CAMPUS_PRESET);
+        setStartNodeId('SERVER_HALL');
+        setHazards({ blockedNodes: new Set(), blockedEdges: new Set(), closedExits: new Set(['AIRLOCK_EAST']) });
+        break;
+      default:
         break;
     }
   }, [handleExitSimulation]);

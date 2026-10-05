@@ -52,6 +52,24 @@ export interface Translations {
   scenario4Desc: string;
   scenario5: string;
   scenario5Desc: string;
+  scenarioCategoryContest: string;
+  scenarioCategoryTieBreak: string;
+  scenarioCategoryHospital: string;
+  scenarioCategoryCyber: string;
+  scenario6: string;
+  scenario6Desc: string;
+  scenario7: string;
+  scenario7Desc: string;
+  scenario8: string;
+  scenario8Desc: string;
+  scenario9: string;
+  scenario9Desc: string;
+  scenario10: string;
+  scenario10Desc: string;
+  scenario11: string;
+  scenario11Desc: string;
+  scenario12: string;
+  scenario12Desc: string;
   runScenario: string;
 
   // Route Intel Panel
@@ -224,6 +242,24 @@ export const translations: Record<Language, Translations> = {
     scenario4Desc: 'Path R2 → C3 → C4 → E2 (Cost: 7)',
     scenario5: '5. Origin Trapped (Block R1)',
     scenario5Desc: 'Start R1 blocked → Origin trapped alert',
+    scenarioCategoryContest: 'Official Contest Benchmark',
+    scenarioCategoryTieBreak: 'Tie-Breaking Determinism Proofs',
+    scenarioCategoryHospital: 'Metropolitan Hospital Emergency',
+    scenarioCategoryCyber: 'Cyber Defense Datacenter',
+    scenario6: '6. Equal Exit Cost Tie-Break (E1 vs E2)',
+    scenario6Desc: 'Both exits cost 5 → Resolves E1 by alphabetical order',
+    scenario7: '7. Equal Path Cost Tie-Break (A vs B)',
+    scenario7Desc: 'Both routes cost 4 → Resolves route via A by node order',
+    scenario8: '8. ICU Emergency Evacuation',
+    scenario8Desc: 'ICU → J_NORTH → Helipad Exit Alpha (Cost: 8)',
+    scenario9: '9. Helipad Cut Off (Divert to Ambulance)',
+    scenario9Desc: 'Exit Alpha sealed → Reroute to Exit Bravo (Cost: 9)',
+    scenario10: '10. Hospital All Exits Sealed',
+    scenario10Desc: 'Exits Alpha, Bravo & Charlie sealed → Trapped failure simulation',
+    scenario11: '11. Server Hall Blast Evacuation',
+    scenario11Desc: 'SERVER_HALL → SEC_CORRIDOR_1 → Blast East (Cost: 9)',
+    scenario12: '12. East Blast Sealed (Divert West)',
+    scenario12Desc: 'East exit sealed → Evacuate via Stairwell West (Cost: 8)',
     runScenario: 'Apply Scenario',
 
     routeIntel: 'ROUTE INTELLIGENCE',
@@ -388,6 +424,24 @@ export const translations: Record<Language, Translations> = {
     scenario4Desc: 'রুট R2 → C3 → C4 → E2 (খরচ: ৭)',
     scenario5: '৫. প্রারম্ভিক কক্ষেই আগুন (R1 অবরুদ্ধ)',
     scenario5Desc: 'শুরুর স্থান অবরুদ্ধ → প্রারম্ভিক বিপদ সতর্কতা',
+    scenarioCategoryContest: 'অফিসিয়াল কন্টেস্ট বেঞ্চমার্ক',
+    scenarioCategoryTieBreak: 'টাই-ব্রেকিং অ্যালগরিদম প্রমাণ',
+    scenarioCategoryHospital: 'হাসপাতাল উইং জরুরি নিষ্ক্রমণ',
+    scenarioCategoryCyber: 'সাইবার বাঙ্কার ও ডেটাসেন্টার',
+    scenario6: '৬. সমান দূরত্বের নির্গমন টাই-ব্রেক (E1 বনাম E2)',
+    scenario6Desc: 'উভয় গেটে দূরত্ব ৫ → বর্ণানুক্রমিক নিয়মে E1 নির্বাচিত',
+    scenario7: '৭. সমখরচ বিকল্প রুট টাই-ব্রেক (রুট A বনাম B)',
+    scenario7Desc: 'উভয় রুটে খরচ ৪ → নোড ক্রমানুসারে রুট A নির্বাচিত',
+    scenario8: '৮. হাসপাতাল আইসিইউ থেকে হ্যালিপ্যাডে নিষ্ক্রমণ',
+    scenario8Desc: 'আইসিইউ → উত্তর কনকোর্স → হ্যালিপ্যাড গেট (খরচ: ৮)',
+    scenario9: '৯. হ্যালিপ্যাড অবরুদ্ধ (অ্যাম্বুলেন্স বে-তে স্থানান্তর)',
+    scenario9Desc: 'হ্যালিপ্যাড সিলকৃত → অ্যাম্বুলেন্স বে-তে বিকল্প রুট (খরচ: ৯)',
+    scenario10: '১০. হাসপাতালের সকল গেট অবরুদ্ধ (আটকা পড়ার দৃশ্য)',
+    scenario10Desc: '৩টি গেটই সিলকৃত → আটকা পড়ার জরুরি সাইরেন সিমুলেশন',
+    scenario11: '১১. সার্ভার কোর ব্লাস্ট নিষ্ক্রমণ',
+    scenario11Desc: 'সার্ভার রুম → নিরাপত্তা পথ ১ → পূর্ব ব্লাস্ট গেট (খরচ: ৯)',
+    scenario12: '১২. পূর্ব এয়ারলক বিচ্ছিন্ন (পশ্চিম জরুরি সিঁড়িতে স্থানান্তর)',
+    scenario12Desc: 'পূর্ব গেট বন্ধ → পশ্চিম জরুরি সিঁড়িদ্বারে বিকল্প রুট (খরচ: ৮)',
     runScenario: 'দৃশ্যপট প্রয়োগ করুন',
 
     routeIntel: 'রুট বুদ্ধিমত্তা ডেক',
