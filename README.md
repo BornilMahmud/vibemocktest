@@ -111,8 +111,9 @@ npm run preview
 ---
 
 ## 🌐 Live Demo & Repository
+- **Live URL**: [https://vibemocktest.vercel.app](https://vibemocktest.vercel.app)
 - **GitHub Repository**: [https://github.com/BornilMahmud/vibemocktest](https://github.com/BornilMahmud/vibemocktest)
-- **Deployment Platform**: Vercel / Cloudflare Pages / GitHub Pages (Static HTTPS Frontend)
+- **Deployment Platform**: Vercel (Continuous Deployment from `main` branch)
 
 ---
 
